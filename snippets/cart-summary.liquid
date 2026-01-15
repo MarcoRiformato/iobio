@@ -281,25 +281,36 @@
     {%- liquid
       assign delivery_days = 3
       assign current_date = 'now' | date: '%s' | plus: 0
-      assign delivery_timestamp = current_date | plus: delivery_days | times: 86400
-      assign delivery_date = delivery_timestamp | date: '%b %d'
       assign today = 'now' | date: '%A'
       if today == 'Friday'
         assign delivery_days = delivery_days | plus: 2
       elsif today == 'Saturday'
         assign delivery_days = delivery_days | plus: 1
       endif
+      assign delivery_timestamp = current_date | plus: delivery_days | times: 86400
+      assign delivery_date = delivery_timestamp | date: '%b %d'
     -%}
-    <div class="cart__summary-item cart__delivery-estimate cart-primary-typography">
-      <span class="cart__delivery-icon">
+    <div class="cart__summary-item cart__delivery-estimate cart-primary-typography" style="display: flex !important; visibility: visible !important; opacity: 1 !important; color: #000000 !important;">
+      <span class="cart__delivery-icon" style="display: flex !important; visibility: visible !important; color: #000000 !important;">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M8 1V5L11 8M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
-      <span class="cart__delivery-text">
-        {{ 'cart.delivery.estimated' | t | default: 'Estimated delivery:' }} 
-        <strong>{{ delivery_date }}</strong>
+      <span class="cart__delivery-text" style="display: block !important; visibility: visible !important; color: #000000 !important;">
+        {% assign delivery_label = 'cart.delivery.estimated' | t %}
+        {% if delivery_label == blank or delivery_label contains 'cart.delivery' %}
+          {% assign delivery_label = 'Estimated delivery:' %}
+        {% endif %}
+        {{ delivery_label }} 
+        <strong style="color: #000000 !important;">{{ delivery_date }}</strong>
       </span>
+      <script>
+        // #region agent log
+        (function(){
+          fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart-summary.liquid:293',message:'Delivery estimate rendered',data:{deliveryDate:'{{ delivery_date }}',deliveryLabel:'{{ delivery_label }}',deliveryDays:'{{ delivery_days }}'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        })();
+        // #endregion
+      </script>
     </div>
     {%- if shop.shipping_policy.body != blank -%}
       <div class="cart__summary-item cart__shipping-info cart-primary-typography">
@@ -309,29 +320,51 @@
       </div>
     {%- endif -%}
     {%- comment -%} Security information {%- endcomment -%}
-    <div class="cart__summary-item cart__security-info cart-primary-typography">
-      <div class="cart__security-content">
-        <span class="cart__security-icon">
+    <div class="cart__summary-item cart__security-info cart-primary-typography" style="display: flex !important; visibility: visible !important; opacity: 1 !important; color: #000000 !important; flex-direction: column !important; gap: 8px !important;">
+      <div class="cart__security-content" style="display: flex !important; visibility: visible !important; align-items: center !important; gap: 8px !important;">
+        <span class="cart__security-icon" style="display: flex !important; visibility: visible !important; color: #000000 !important;">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 1L3 3.5V7.5C3 10.5 5.5 13 8 14C10.5 13 13 10.5 13 7.5V3.5L8 1Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             <path d="M6 8L7.5 9.5L10 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </span>
-        <span class="cart__security-text">
-          {{ 'cart.security.secure_checkout' | t | default: 'Secure checkout' }}
+        <span class="cart__security-text" style="display: block !important; visibility: visible !important; color: #000000 !important; font-size: 12px !important;">
+          {% assign security_text = 'cart.security.secure_checkout' | t %}
+          {% if security_text == blank or security_text contains 'cart.security' %}
+            {% assign security_text = 'Secure checkout' %}
+          {% endif %}
+          {{ security_text }}
         </span>
       </div>
-      <div class="cart__security-payment-icons">
+      <div class="cart__security-payment-icons" style="display: block !important; visibility: visible !important; margin-top: 4px !important;">
         {%- if shop.enabled_payment_types.size > 0 -%}
-          <div class="cart__payment-icons">
+          <div class="cart__payment-icons" style="display: flex !important; visibility: visible !important; flex-wrap: wrap !important; gap: 6px !important; align-items: center !important;">
             {%- for type in shop.enabled_payment_types -%}
-              <span class="cart__payment-icon" title="{{ type | replace: '_', ' ' | capitalize }}">
+              <span class="cart__payment-icon" title="{{ type | replace: '_', ' ' | capitalize }}" style="display: flex !important; visibility: visible !important; align-items: center !important; justify-content: center !important;">
+                {{ type | payment_type_svg_tag: class: 'cart__payment-svg' }}
+              </span>
+            {%- endfor -%}
+          </div>
+        {%- else -%}
+          {%- comment -%} Fallback: Show standard payment icons if Shopify payment types not available {%- endcomment -%}
+          {%- assign fallback_payments = 'visa,master,american_express,paypal,apple_pay,google_pay' | split: ',' -%}
+          <div class="cart__payment-icons" style="display: flex !important; visibility: visible !important; flex-wrap: wrap !important; gap: 6px !important; align-items: center !important;">
+            {%- for type in fallback_payments -%}
+              <span class="cart__payment-icon" title="{{ type | replace: '_', ' ' | capitalize }}" style="display: flex !important; visibility: visible !important; align-items: center !important; justify-content: center !important;">
                 {{ type | payment_type_svg_tag: class: 'cart__payment-svg' }}
               </span>
             {%- endfor -%}
           </div>
         {%- endif -%}
       </div>
+      <script>
+        // #region agent log
+        (function(){
+          const paymentTypesCount = {{ shop.enabled_payment_types.size }};
+          fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart-summary.liquid:316',message:'Security info rendered',data:{paymentTypesCount:paymentTypesCount,securityText:'{{ security_text }}'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        })();
+        // #endregion
+      </script>
     </div>
   </div>
 </div>
@@ -655,12 +688,19 @@
   }
 
   .cart__delivery-estimate {
-    display: flex;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     align-items: center;
     gap: 8px;
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.7);
+    color: #000000 !important;
     margin-top: 4px;
+    padding: 4px 0;
+  }
+
+  .cart__delivery-estimate * {
+    color: #000000 !important;
   }
 
   .cart__delivery-icon {
@@ -670,30 +710,44 @@
     width: 16px;
     height: 16px;
     flex-shrink: 0;
-    color: rgba(0, 0, 0, 0.6);
+    color: #000000 !important;
   }
 
   .cart__delivery-icon svg {
     width: 100%;
     height: 100%;
+    color: #000000 !important;
+  }
+
+  .cart__delivery-icon svg path {
+    stroke: #000000 !important;
   }
 
   .cart__delivery-text {
     line-height: 1.4;
+    color: #000000 !important;
   }
 
   .cart__delivery-text strong {
     font-weight: 600;
-    color: #000000;
+    color: #000000 !important;
   }
 
   .cart__security-info {
-    display: flex;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
     padding-top: 12px;
+    padding-bottom: 4px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
+    color: #000000 !important;
+  }
+
+  .cart__security-info * {
+    color: #000000 !important;
   }
 
   .cart__security-content {
@@ -701,7 +755,7 @@
     align-items: center;
     gap: 8px;
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.7);
+    color: #000000 !important;
   }
 
   .cart__security-icon {
@@ -711,17 +765,23 @@
     width: 16px;
     height: 16px;
     flex-shrink: 0;
-    color: rgba(0, 77, 0, 0.8);
+    color: #000000 !important;
   }
 
   .cart__security-icon svg {
     width: 100%;
     height: 100%;
+    color: #000000 !important;
+  }
+
+  .cart__security-icon svg path {
+    stroke: #000000 !important;
   }
 
   .cart__security-text {
     font-weight: 500;
     line-height: 1.4;
+    color: #000000 !important;
   }
 
   .cart__security-payment-icons {
@@ -729,31 +789,48 @@
   }
 
   .cart__payment-icons {
-    display: flex;
+    display: flex !important;
     flex-wrap: wrap;
     gap: 6px;
     align-items: center;
+    visibility: visible !important;
   }
 
   .cart__payment-icon {
-    display: flex;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 20px;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
+    width: 40px;
+    height: 24px;
+    min-width: 40px;
+    min-height: 24px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 2px;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
   }
 
   .cart__payment-icon:hover {
     opacity: 1;
+    border-color: rgba(0, 0, 0, 0.2);
   }
 
   .cart__payment-svg {
     width: 100%;
     height: 100%;
-    max-width: 32px;
-    max-height: 20px;
+    max-width: 36px;
+    max-height: 22px;
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .cart__payment-svg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   @media (max-width: 749px) {

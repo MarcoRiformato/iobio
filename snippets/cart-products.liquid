@@ -202,9 +202,6 @@
                           {{- item.product.title -}}
                         </a>
                       </p>
-                      <div class="cart-items__badges">
-                        {% render 'product-badge', product: item.product %}
-                      </div>
                     </div>
                     
                     <div class="cart-items__description-placeholder">
@@ -212,22 +209,103 @@
                     </div>
                     
                     <div class="cart-items__price-wrapper">
-                      {%- liquid
-                        if settings.currency_code_enabled_cart_items
-                          assign price = item.final_line_price | money_with_currency
-                          assign unit_price = item.unit_price | money_with_currency
-                        else
-                          assign price = item.final_line_price | money
-                          assign unit_price = item.unit_price | money
-                        endif
-                      -%}
-                      <text-component value="{{ price | strip_html }}" class="cart-items__price cart-secondary-typography">{{ price }}</text-component>
+                      <div class="cart-items__price-inner">
+                        {%- liquid
+                          if settings.currency_code_enabled_cart_items
+                            assign price = item.final_line_price | money_with_currency
+                            assign unit_price = item.unit_price | money_with_currency
+                          else
+                            assign price = item.final_line_price | money
+                            assign unit_price = item.unit_price | money
+                          endif
+                        -%}
+                        <text-component value="{{ price | strip_html }}" class="cart-items__price cart-secondary-typography">{{ price }}</text-component>
+                        <div class="cart-items__badges">
+                          {% render 'product-badge', product: item.product %}
+                        </div>
+                      </div>
                       {%- if item.unit_price_measurement -%}
                         <div class="cart-items__price-unit cart-secondary-typography">
                           {% render 'unit-price', price: unit_price, measurement: item.unit_price_measurement %}
                         </div>
                       {%- endif -%}
                     </div>
+
+                    {%- comment -%} Stock counter {%- endcomment -%}
+                    {%- liquid
+                      assign variant = item.variant
+                      assign product_variant = item.product.variants | where: 'id', variant.id | first
+                      assign inventory_managed = false
+                      
+                      # Check if inventory is managed - try variant first, then product variant
+                      if variant.inventory_management == 'shopify'
+                        assign inventory_managed = true
+                      elsif product_variant.inventory_management == 'shopify'
+                        assign inventory_managed = true
+                      elsif variant.inventory_item_id != blank
+                        assign inventory_managed = true
+                      endif
+                      
+                      # Get inventory quantity - try multiple methods
+                      assign inventory_quantity = variant.inventory_quantity
+                      if inventory_quantity == blank or inventory_quantity == 0
+                        assign inventory_quantity = product_variant.inventory_quantity | default: variant.quantity_available | default: 0
+                      endif
+                      
+                      assign inventory_policy = variant.inventory_policy | default: product_variant.inventory_policy | default: 'deny'
+                      assign threshold = 10
+                      assign show_stock = false
+                      assign stock_status = null
+                      assign stock_text = null
+                      
+                      # Always show if inventory is managed and we have a quantity (for testing, remove this later)
+                      # For now, let's always try to show if we have any inventory data
+                      if inventory_managed
+                        if inventory_quantity > 0
+                          if inventory_quantity <= threshold
+                            assign show_stock = true
+                            assign stock_status = 'low'
+                            capture stock_text
+                              echo 'cart.stock.low_stock' | t: count: inventory_quantity
+                            endcapture
+                            if stock_text == blank or stock_text contains 'cart.stock'
+                              assign stock_text = 'Only ' | append: inventory_quantity | append: ' left'
+                            endif
+                          endif
+                        else
+                          if inventory_policy == 'deny'
+                            assign show_stock = true
+                            assign stock_status = 'out'
+                            assign stock_text = 'cart.stock.out_of_stock' | t
+                            if stock_text == blank or stock_text contains 'cart.stock'
+                              assign stock_text = 'Out of stock'
+                            endif
+                          endif
+                        endif
+                      endif
+                      
+                    -%}
+                    {%- if show_stock -%}
+                      <div class="cart-items__stock cart-items__stock--{{ stock_status }}" style="display: flex !important; visibility: visible !important; color: #dc2626 !important;">
+                        <span class="cart-items__stock-icon" style="color: #dc2626 !important;">
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
+                            <circle cx="7" cy="7" r="3" fill="currentColor"/>
+                          </svg>
+                        </span>
+                        <span class="cart-items__stock-text" style="color: #dc2626 !important;">{{ stock_text }}</span>
+                      </div>
+                    {%- endif -%}
+                    {%- comment -%} DEBUG LOG: Inventory data {%- endcomment -%}
+                    <script>
+                      // #region agent log
+                      (function(){
+                        const variant = {{ variant | json }};
+                        const itemData = {variantId: '{{ item.variant.id }}', inventoryManagement: '{{ item.variant.inventory_management }}', inventoryQuantity: '{{ item.variant.inventory_quantity }}', inventoryPolicy: '{{ item.variant.inventory_policy }}'};
+                        fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart-products.liquid:347',message:'Stock counter Liquid logic result',data:{showStock:'{{ show_stock }}',stockStatus:'{{ stock_status }}',stockText:'{{ stock_text }}',inventoryManaged:'{{ inventory_managed }}',inventoryQuantity:'{{ inventory_quantity }}',inventoryPolicy:'{{ inventory_policy }}',itemData:itemData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                      })();
+                      // #endregion
+                    </script>
 
                     {% if item.product.vendor and block_settings.vendor %}
                       <p class="cart-items__vendor">
@@ -285,56 +363,6 @@
                         {% if item.selling_plan_allocation %}
                           <p class="cart-items__selling-plan">{{ item.selling_plan_allocation.selling_plan.name }}</p>
                         {% endif %}
-                      </div>
-                    {%- endif -%}
-
-                    {%- comment -%} Stock counter {%- endcomment -%}
-                    {%- liquid
-                      assign variant = item.variant
-                      assign inventory_managed = false
-                      if variant.inventory_management == 'shopify'
-                        assign inventory_managed = true
-                      endif
-                      assign inventory_quantity = variant.inventory_quantity
-                      assign inventory_policy = variant.inventory_policy
-                      assign threshold = 10
-                      assign show_stock = false
-                      assign stock_status = null
-                      assign stock_text = null
-                      
-                      if inventory_managed
-                        if inventory_quantity > 0
-                          if inventory_quantity <= threshold
-                            assign show_stock = true
-                            assign stock_status = 'low'
-                            capture stock_text
-                              echo 'cart.stock.low_stock' | t: count: inventory_quantity
-                            endcapture
-                            if stock_text == blank
-                              assign stock_text = 'Only ' | append: inventory_quantity | append: ' left'
-                            endif
-                          endif
-                        else
-                          if inventory_policy == 'deny'
-                            assign show_stock = true
-                            assign stock_status = 'out'
-                            assign stock_text = 'cart.stock.out_of_stock' | t
-                            if stock_text == blank
-                              assign stock_text = 'Out of stock'
-                            endif
-                          endif
-                        endif
-                      endif
-                    -%}
-                    {%- if show_stock -%}
-                      <div class="cart-items__stock cart-items__stock--{{ stock_status }}">
-                        <span class="cart-items__stock-icon">
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
-                            <circle cx="7" cy="7" r="3" fill="currentColor"/>
-                          </svg>
-                        </span>
-                        <span class="cart-items__stock-text">{{ stock_text }}</span>
                       </div>
                     {%- endif -%}
 
@@ -646,14 +674,30 @@
     margin: 0;
     padding: 0;
     order: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
   }
 
   .cart-items__title-container {
     margin: 0;
     padding: 0;
+  }
+
+  .cart-items__price-wrapper {
+    position: relative;
+  }
+
+  .cart-items__price-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  .cart-items__price-inner .cart-items__price {
+    flex: 0 0 auto;
+    margin-right: auto;
   }
 
   .cart-items__badges {
@@ -662,6 +706,13 @@
     gap: 4px;
     margin: 0;
     padding: 0;
+    align-items: center;
+  }
+
+  .cart-items__price-inner .cart-items__badges {
+    flex: 0 0 auto;
+    margin-left: auto;
+    margin-top: 0;
   }
 
   .cart-items__description-placeholder {
@@ -715,12 +766,14 @@
   }
 
   .cart-items__stock {
-    order: 5.5;
-    display: flex;
+    order: 3.2;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     align-items: center;
     gap: 6px;
     font-size: 11px;
-    margin: 2px 0 0 0;
+    margin: 4px 0 0 0;
     padding: 0;
   }
 
@@ -730,30 +783,42 @@
   }
 
   .cart-items__stock--low {
-    color: #dc2626;
+    color: #dc2626 !important;
   }
 
   .cart-items__stock--out {
-    color: #dc2626;
+    color: #dc2626 !important;
   }
 
   .cart-items__stock-icon {
-    display: flex;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     align-items: center;
     justify-content: center;
     width: 14px;
     height: 14px;
     flex-shrink: 0;
+    color: #dc2626 !important;
   }
 
   .cart-items__stock-icon svg {
     width: 100%;
     height: 100%;
+    display: block;
+    color: #dc2626 !important;
+  }
+
+  .cart-items__stock-icon svg circle {
+    stroke: #dc2626 !important;
+    fill: #dc2626 !important;
   }
 
   .cart-items__stock-text {
     font-weight: 500;
     line-height: 1.3;
+    display: block;
+    color: #dc2626 !important;
   }
 
   .cart-items__quantity-controls {

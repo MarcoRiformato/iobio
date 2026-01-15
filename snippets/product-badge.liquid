@@ -9,7 +9,7 @@
   assign badge_type = null
   assign badge_text = null
   
-  if product.tags contains 'bestseller'
+  if product.tags contains 'bestseller' or product.tags contains 'best-seller' or product.tags contains 'best_seller'
     assign badge_type = 'bestseller'
     assign badge_text = 'products.badge.bestseller' | t | default: 'Bestseller'
   elsif product.tags contains 'new'
@@ -43,9 +43,9 @@
   }
 
   .product-badge--bestseller {
-    background-color: rgba(255, 193, 7, 0.15);
-    border-color: rgba(255, 193, 7, 0.3);
-    color: #856404;
+    background-color: #ff9800;
+    border-color: #f57c00;
+    color: #ffffff;
   }
 
   .product-badge--new {
