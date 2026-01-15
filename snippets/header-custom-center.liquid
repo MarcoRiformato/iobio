@@ -1,0 +1,33 @@
+{% comment %}
+  Custom header center column with login and register buttons
+{% endcomment %}
+<div class="header-custom-center">
+  {% if shop.customer_accounts_enabled %}
+    <a href="{{ routes.account_login_url }}" class="header-login-button" style="
+      background-color: #90EE90;
+      color: #004d00;
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: opacity 0.2s;
+    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+      accedi
+    </a>
+    <a href="{{ routes.account_register_url }}" class="header-register-button" style="
+      background-color: #90EE90;
+      color: #004d00;
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: opacity 0.2s;
+    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+      registrati
+    </a>
+  {% endif %}
+</div>

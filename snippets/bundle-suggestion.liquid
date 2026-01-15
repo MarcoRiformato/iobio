@@ -1,0 +1,159 @@
+{%- doc -%}
+  Renders bundle suggestions for a product.
+  
+  @param {object} product - The product object
+  @param {object} item - The cart item object (optional, for cart context)
+  @param {string} [class] - Additional CSS classes
+{%- enddoc -%}
+
+{% liquid
+  assign bundle_products = null
+  assign bundle_product = null
+  
+  # Try to get bundle products from metafield
+  if product.metafields.custom.bundle_products != blank
+    assign bundle_handles = product.metafields.custom.bundle_products | split: ','
+    if bundle_handles.size > 0
+      assign first_handle = bundle_handles[0] | strip
+      assign bundle_product = all_products[first_handle]
+    endif
+  endif
+  
+  # Fallback: try collection-based approach
+  if bundle_product == blank
+    assign bundle_collection_handle = 'bundles-' | append: product.handle
+    assign bundle_collection = collections[bundle_collection_handle]
+    if bundle_collection != blank and bundle_collection.products.size > 0
+      assign bundle_product = bundle_collection.products.first
+    endif
+  endif
+  
+  # Fallback: try tag-based approach
+  if bundle_product == blank
+    for tag in product.tags
+      if tag contains 'bundle-with-'
+        assign bundle_handle = tag | remove_first: 'bundle-with-'
+        assign bundle_product = all_products[bundle_handle]
+        break
+      endif
+    endfor
+  endif
+-%}
+
+{% if bundle_product != blank and bundle_product.available %}
+  {% liquid
+    assign bundle_variant = bundle_product.selected_or_first_available_variant
+    assign bundle_price = bundle_variant.price
+    if settings.currency_code_enabled_cart_items
+      assign bundle_price_formatted = bundle_price | money_with_currency
+    else
+      assign bundle_price_formatted = bundle_price | money
+    endif
+  %}
+  <div class="bundle-suggestion{% if class %} {{ class }}{% endif %}">
+    <div class="bundle-suggestion__content">
+      <p class="bundle-suggestion__text">
+        <span class="bundle-suggestion__label">{{ 'cart.bundle.complete_set' | t | default: 'Complete the set:' }}</span>
+        <a href="{{ bundle_product.url }}" class="bundle-suggestion__product-link">
+          {{ bundle_product.title }}
+        </a>
+        <span class="bundle-suggestion__price">for {{ bundle_price_formatted }}</span>
+      </p>
+      <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="bundle-suggestion__form">
+        <input type="hidden" name="id" value="{{ bundle_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="bundle-suggestion__button button button--secondary">
+          {{ 'cart.bundle.add_to_cart' | t | default: 'Add to cart' }}
+        </button>
+      </form>
+    </div>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .bundle-suggestion {
+    margin: 8px 0 0 0;
+    padding: 10px 12px;
+    background-color: rgba(0, 77, 0, 0.05);
+    border: 1px solid rgba(0, 77, 0, 0.15);
+    border-radius: 6px;
+  }
+
+  .bundle-suggestion__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bundle-suggestion__text {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.8);
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+  }
+
+  .bundle-suggestion__label {
+    font-weight: 600;
+    color: #000000;
+  }
+
+  .bundle-suggestion__product-link {
+    color: rgba(0, 0, 0, 0.8);
+    text-decoration: underline;
+    transition: color 0.2s ease;
+    font-weight: 500;
+  }
+
+  .bundle-suggestion__product-link:hover {
+    color: #004d00;
+  }
+
+  .bundle-suggestion__price {
+    font-weight: 600;
+    color: #004d00;
+  }
+
+  .bundle-suggestion__form {
+    margin: 0;
+    padding: 0;
+  }
+
+  .bundle-suggestion__button {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .bundle-suggestion__button:hover {
+    background-color: rgba(0, 77, 0, 0.1);
+    border-color: rgba(0, 77, 0, 0.3);
+    color: #004d00;
+  }
+
+  .bundle-suggestion__button:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 749px) {
+    .bundle-suggestion {
+      padding: 8px 10px;
+    }
+
+    .bundle-suggestion__text {
+      font-size: 11px;
+    }
+
+    .bundle-suggestion__button {
+      padding: 6px 12px;
+      font-size: 11px;
+    }
+  }
+{% endstylesheet %}

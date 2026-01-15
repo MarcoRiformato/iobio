@@ -1,0 +1,21 @@
+{% comment %}
+  Custom header left column with home icon and navigation links
+{% endcomment %}
+<div class="header-custom-left">
+  {% comment %} Home Icon {% endcomment %}
+  <a href="{{ routes.root_url }}" class="header-home-icon" style="display: flex; align-items: center; color: inherit; text-decoration: none; padding: 4px;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 1.75rem; height: 1.75rem;">
+      <path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9.55228 21 10 20.5523 10 20V16C10 15.4477 10.4477 15 11 15H13C13.5523 15 14 15.4477 14 16V20C14 20.5523 14.4477 21 15 21M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+  
+  {% comment %} Navigation Links - Multi-column layout {% endcomment %}
+  <div class="header-nav-links-wrapper">
+    <a href="{{ section.settings.videofaq_link | default: '#' }}" class="header-nav-link" style="color: inherit; text-decoration: none; font-size: 0.875rem;">
+      videofaq
+    </a>
+    <a href="{{ section.settings.infoblog_link | default: '#' }}" class="header-nav-link" style="color: inherit; text-decoration: none; font-size: 0.875rem;">
+      infoblog
+    </a>
+  </div>
+</div>

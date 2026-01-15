@@ -1,0 +1,44 @@
+{%- doc -%}
+  @param [limit] - {number}
+  @param [live_region] - {boolean}
+
+  The maximum number of items in the cart to display. If the number of items in the cart is greater than this limit, the
+  count will be displayed as "99+".
+{%- enddoc -%}
+
+<div
+  ref="cartBubble"
+  class="cart-bubble{% if cart == empty %} visually-hidden{% endif %}"
+  {% assign item_count = cart.item_count %}
+  {% if item_count <= 99 %}
+    data-maintain-ratio
+  {% endif %}
+  style="position: absolute !important; top: var(--cart-bubble-top, 4.5px) !important; right: var(--cart-bubble-right, 2.5px) !important; width: auto !important; height: auto !important; min-width: 0 !important; min-height: 0 !important; display: block !important; background: none !important; border: none !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; aspect-ratio: auto !important; border-radius: 0 !important;"
+>
+  <span class="cart-bubble__background" style="display: none !important; visibility: hidden !important; opacity: 0 !important; width: 0 !important; height: 0 !important;"></span>
+  <span
+    ref="cartBubbleText"
+    id="cart-bubble-text"
+    class="cart-bubble__text"
+    style="color: #000000 !important; display: block !important; position: relative !important; z-index: 1 !important; background: none !important; border: none !important; padding: 0 !important; margin: 0 !important; width: auto !important; height: auto !important;"
+    {% if live_region %}
+      role="status"
+    {% endif %}
+  >
+    <span class="visually-hidden">
+      {{- 'accessibility.cart_count' | t -}}
+      : {{ cart.item_count }}
+    </span>
+    <span
+      class="cart-bubble__text-count{% if cart == empty %} hidden{% endif %}"
+      ref="cartBubbleCount"
+      aria-hidden="true"
+      data-testid="cart-bubble"
+      style="color: #000000 !important; background-color: rgba(255, 255, 255, 0.95) !important; border: 1px solid rgba(0, 0, 0, 0.2) !important; padding: 2px 6px !important; border-radius: 10px !important; display: inline-block !important; min-width: 18px !important; text-align: center !important; font-weight: 600 !important; position: relative !important; z-index: 2 !important; box-shadow: none !important; margin: 0 !important;"
+    >
+      {%- if limit == blank or cart.item_count < limit %}
+        {{- cart.item_count -}}
+      {%- endif -%}
+    </span>
+  </span>
+</div>

@@ -1,0 +1,891 @@
+{%- doc -%}
+  Renders the cart summary totals.
+
+  @param {string} [accelerated_checkout_buttons_layout] - { 'vertical' } Forced layout of the additional checkout buttons, instead of relying on platform's layout.
+{%- enddoc -%}
+
+<div class="cart__summary-totals">
+  {% # We need to keep this node in place to allow morphing to work properly # %}
+  <div class="cart__original-total-container cart-primary-typography">
+    {%- if cart.cart_level_discount_applications.size > 0 and cart.total_discount > 0 -%}
+      <span class="cart__summary-item cart__original-total">
+        <span class="cart__original-total-label">{{ 'content.cart_subtotal' | t }}</span>
+        <span class="cart__original-total-value cart-secondary-typography">
+          {{- cart.original_total_price | money -}}
+        </span>
+      </span>
+      <div class="cart__summary-discounts">
+        <ul
+          class="discounts list-unstyled"
+          role="list"
+          aria-label="{{ 'content.discounts' | t }}"
+        >
+          {%- for discount in cart.cart_level_discount_applications -%}
+            {%- if discount.total_allocated_amount > 0 -%}
+              <li class="cart__summary-item cart__discount">
+                <span class="cart__discount-label">
+                  {{- 'icon-discount.svg' | inline_asset_content -}}
+                  {{ discount.title | escape }}
+                </span>
+                <span class="cart__discount-value cart-secondary-typography"
+                  >-{{ discount.total_allocated_amount | money -}}
+                </span>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {% if settings.show_cart_note or settings.show_add_discount_code %}
+    <div class="cart-actions">
+      {% if settings.show_cart_note %}
+        <script
+          type="module"
+          src="{{ 'cart-note.js' | asset_url }}"
+        ></script>
+
+        <cart-note>
+          <accordion-custom
+            class="cart-note"
+            {% if settings.cart_note_open_by_default %}
+              open-by-default-on-desktop
+              open-by-default-on-mobile
+            {% endif %}
+          >
+            <details
+              class="details"
+              {% if settings.cart_note_open_by_default %}
+                open
+              {% endif %}
+            >
+              <summary class="cart-note__summary">
+                <span class="cart-note__label cart-primary-typography">
+                  {{ 'content.seller_note' | t }}
+                </span>
+
+                <span class="svg-wrapper icon-plus">
+                  {{- 'icon-plus.svg' | inline_asset_content -}}
+                </span>
+              </summary>
+
+              <div class="details-content cart-note__inner">
+                <label
+                  for="cart-note"
+                  class="visually-hidden"
+                >
+                  {{- 'content.seller_note' | t -}}
+                </label>
+                <textarea
+                  form="cart-form"
+                  on:input="/updateCartNote"
+                  id="cart-note"
+                  class="cart-note__instructions"
+                  name="note"
+                >{{ cart.note }}</textarea>
+              </div>
+            </details>
+          </accordion-custom>
+        </cart-note>
+      {% endif %}
+      {% if settings.show_cart_note and settings.show_add_discount_code %}
+        <div class="cart-actions__divider"></div>
+      {% endif %}
+      {% if settings.show_add_discount_code %}
+        {% liquid
+          assign discount_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' | map: 'title'
+          for item in cart.items
+            for allocation in item.line_level_discount_allocations
+              if allocation.discount_application.type == 'discount_code'
+                assign discount_codes = item.line_level_discount_allocations | slice: forloop.index0 | map: 'discount_application' | map: 'title' | concat: discount_codes
+              endif
+            endfor
+          endfor
+
+          assign discount_codes = discount_codes | uniq
+
+          # Evaluate the boolean expression for the disclosure state
+          if discount_codes.size == 0
+            assign disclosure_expanded = false
+          else
+            assign disclosure_expanded = true
+          endif
+          
+          # HIDE the discount disclosure completely if there are NO discounts applied
+          # Only show it if there are already discount codes applied (so user can see/remove them)
+          # OR if cart.total_discount > 0 (there are discounts but maybe not discount codes)
+          assign show_discount_disclosure = false
+          if discount_codes.size > 0 or cart.total_discount > 0
+            assign show_discount_disclosure = true
+          endif
+        %}
+
+        {% comment %} Completely hide discount section if no discounts {% endcomment %}
+        {% if show_discount_disclosure %}
+        <disclosure-custom class="cart-discount">
+          <button
+            aria-controls="cart-discount-disclosure"
+            aria-expanded="{% if disclosure_expanded %}true{% else %}false{% endif %}"
+            aria-label="{% if disclosure_expanded %}{{ 'actions.close' | t }}{% else %}{{ 'actions.open' | t }}{% endif %} {{ 'accessibility.discount_menu' | t }}"
+            class="disclosure-trigger"
+            data-disclosure-open="{{ 'actions.open' | t }} {{ 'accessibility.discount_menu' | t }}"
+            data-disclosure-close="{{ 'actions.close' | t }} {{ 'accessibility.discount_menu' | t }}"
+            on:click="/toggleDisclosure"
+            ref="disclosureTrigger"
+            type="button"
+          >
+            <span class="disclosure-trigger__label cart-primary-typography">{{ 'content.discount' | t }}</span>
+
+            <span class="svg-wrapper icon-plus">
+              {{- 'icon-plus.svg' | inline_asset_content -}}
+            </span>
+          </button>
+
+          <div
+            class="disclosure-content"
+            {% unless disclosure_expanded %}
+              inert
+            {% endunless %}
+            ref="disclosureContent"
+          >
+            <div id="cart-discount-disclosure">
+              <cart-discount-component
+                data-section-id="{{ section.id }}"
+              >
+                <div class="cart-discount__content">
+                  <form
+                    on:submit="/applyDiscount"
+                    onsubmit="return false;"
+                    class="cart-discount__form"
+                  >
+                    <label
+                      for="cart-discount"
+                      class="visually-hidden"
+                    >
+                      {{- 'accessibility.discount' | t -}}
+                    </label>
+                    <input
+                      id="cart-discount"
+                      class="cart-discount__input"
+                      type="text"
+                      name="discount"
+                      size="8"
+                      placeholder="{{ 'content.discount_code' | t }}"
+                      required
+                    >
+                    <button
+                      type="submit"
+                      class="button button--primary cart-discount__button"
+                    >
+                      {{ 'actions.apply' | t }}
+                    </button>
+                  </form>
+                </div>
+                <div
+                  class="cart-discount__error hidden"
+                  role="alert"
+                  ref="cartDiscountError"
+                >
+                  <span class="svg-wrapper">
+                    {{- 'icon-error.svg' | inline_asset_content -}}
+                  </span>
+                  <small
+                    class="cart-discount__error-text cart-primary-typography hidden"
+                    ref="cartDiscountErrorDiscountCode"
+                  >
+                    {{ 'content.discount_code_error' | t: code: 'test' }}
+                  </small>
+                  <small
+                    class="cart-discount__error-text cart-primary-typography hidden"
+                    ref="cartDiscountErrorShipping"
+                  >
+                    {{ 'content.shipping_discount_error' | t }}
+                  </small>
+                </div>
+                <ul class="cart-discount__codes">
+                  {% for discount_code in discount_codes %}
+                    <li
+                      class="cart-discount__pill"
+                      data-discount-code="{{ discount_code }}"
+                      aria-label="{{ 'accessibility.discount_applied' | t: code: discount_code }}"
+                    >
+                      <p class="cart-discount__pill-code">
+                        {{ discount_code }}
+                      </p>
+                      <button
+                        type="button"
+                        on:click="/removeDiscount"
+                        class="cart-discount__pill-remove svg-wrapper svg-wrapper--smaller button-unstyled"
+                        aria-label="{{ 'actions.remove_discount' | t: code: discount_code }}"
+                      >
+                        {{- 'icon-filters-close.svg' | inline_asset_content -}}
+                      </button>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </cart-discount-component>
+            </div>
+          </div>
+        </disclosure-custom>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {%- liquid
+    if settings.currency_code_enabled_cart_total
+      assign total_price = cart.total_price | money_with_currency
+    else
+      assign total_price = cart.total_price | money
+    endif
+  -%}
+
+  <div class="cart__total-container{% if settings.show_installments %} cart__total-container--has-installments{% endif %}">
+    {%- if cart.total_discount > 0 -%}
+      <div class="cart__summary-item cart__savings">
+        <span class="cart__savings-label cart-primary-typography">
+          {{ 'content.you_saved' | t | default: 'Hai risparmiato' }}
+        </span>
+        <span class="cart__savings-value cart-secondary-typography">
+          {{ cart.total_discount | money }}
+        </span>
+      </div>
+    {%- endif -%}
+    <span
+      class="cart__summary-item cart__total"
+      role="status"
+    >
+      <span class="cart__total-label cart-primary-typography">{{ 'content.cart_estimated_total' | t | default: 'Totale stimato' }}</span>
+      <text-component
+        ref="cartTotal"
+        value="{{ total_price | strip_html }}"
+        class="cart__total-value cart-secondary-typography"
+        {% comment %} Used by payment_terms web component {% endcomment %}
+        data-cart-subtotal
+      >
+        {{ total_price }}
+      </text-component>
+    </span>
+    {% if settings.show_installments %}
+      <span class="cart__summary-item cart__installments">
+        {% form 'cart', cart %}
+          {{ form | payment_terms }}
+        {% endform %}
+      </span>
+    {% endif %}
+    <div class="cart__summary-item tax-note cart-primary-typography">
+      {% render 'tax-info', has_discounts_enabled: settings.show_add_discount_code %}
+    </div>
+    {%- comment -%} Delivery estimate {%- endcomment -%}
+    {%- liquid
+      assign delivery_days = 3
+      assign current_date = 'now' | date: '%s' | plus: 0
+      assign delivery_timestamp = current_date | plus: delivery_days | times: 86400
+      assign delivery_date = delivery_timestamp | date: '%b %d'
+      assign today = 'now' | date: '%A'
+      if today == 'Friday'
+        assign delivery_days = delivery_days | plus: 2
+      elsif today == 'Saturday'
+        assign delivery_days = delivery_days | plus: 1
+      endif
+    -%}
+    <div class="cart__summary-item cart__delivery-estimate cart-primary-typography">
+      <span class="cart__delivery-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 1V5L11 8M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="cart__delivery-text">
+        {{ 'cart.delivery.estimated' | t | default: 'Estimated delivery:' }} 
+        <strong>{{ delivery_date }}</strong>
+      </span>
+    </div>
+    {%- if shop.shipping_policy.body != blank -%}
+      <div class="cart__summary-item cart__shipping-info cart-primary-typography">
+        <a href="{{ shop.shipping_policy.url }}" class="cart__shipping-link">
+          {{ 'content.shipping_policy' | t | default: 'Politica di spedizione' }}
+        </a>
+      </div>
+    {%- endif -%}
+    {%- comment -%} Security information {%- endcomment -%}
+    <div class="cart__summary-item cart__security-info cart-primary-typography">
+      <div class="cart__security-content">
+        <span class="cart__security-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1L3 3.5V7.5C3 10.5 5.5 13 8 14C10.5 13 13 10.5 13 7.5V3.5L8 1Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M6 8L7.5 9.5L10 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="cart__security-text">
+          {{ 'cart.security.secure_checkout' | t | default: 'Secure checkout' }}
+        </span>
+      </div>
+      <div class="cart__security-payment-icons">
+        {%- if shop.enabled_payment_types.size > 0 -%}
+          <div class="cart__payment-icons">
+            {%- for type in shop.enabled_payment_types -%}
+              <span class="cart__payment-icon" title="{{ type | replace: '_', ' ' | capitalize }}">
+                {{ type | payment_type_svg_tag: class: 'cart__payment-svg' }}
+              </span>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cart__ctas">
+  <form action="{{ routes.cart_url }}" method="post" id="cart-checkout-form" novalidate>
+    <input type="hidden" name="checkout" value="1">
+    <button
+      type="submit"
+      class="cart__checkout-button"
+      {% if cart == empty %}
+        disabled
+      {% endif %}
+    >
+      {{ 'content.checkout' | t | default: 'Check-out' }}
+    </button>
+  </form>
+</div>
+
+{% stylesheet %}
+  .cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-block: none;
+    padding-block: 0;
+    margin-block-start: 0;
+    color: #000000;
+  }
+
+  .cart__summary-totals {
+    padding: 0;
+    color: #000000;
+  }
+
+  .cart__summary-item,
+  .cart__total-label,
+  .cart__total-value,
+  .cart__original-total-label,
+  .cart__original-total-value,
+  .cart__discount-label,
+  .cart__discount-value,
+  .cart-note__label,
+  .cart-note__instructions,
+  .disclosure-trigger__label,
+  .cart-discount__input,
+  .cart-discount__pill-code,
+  .tax-note,
+  .cart__installments {
+    color: #000000;
+  }
+
+  .cart__ctas {
+    position: relative;
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  .cart__ctas button:not(.cart__checkout-button),
+  .cart__ctas shopify-accelerated-checkout-cart,
+  .cart__ctas .additional-checkout-buttons,
+  .cart__ctas .cart__additional-checkout-buttons {
+    display: none;
+  }
+  
+  .cart__checkout-button {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+    font-weight: 600;
+    padding: 16px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    width: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    letter-spacing: -0.2px;
+    display: block;
+    margin: 0;
+    box-sizing: border-box;
+    min-height: 48px;
+  }
+  
+  @media (max-width: 749px) {
+    .cart__checkout-button {
+      padding: 14px 20px;
+      font-size: 15px;
+      min-height: 44px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .cart__checkout-button {
+      padding: 12px 18px;
+      font-size: 14px;
+    }
+  }
+
+  .cart__checkout-button:hover:not(:disabled) {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .cart__checkout-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .cart__checkout-button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    border-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .cart__checkout-button:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+
+  .cart-actions__divider {
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .cart__summary-totals:not(:has(.cart-actions)) {
+    margin-block-start: 0;
+    border-block-start: none;
+    padding-block-start: 0;
+  }
+
+  .cart__installments {
+    color: #000000;
+    font-size: var(--cart-font-size--2xs);
+  }
+
+  .cart-discount__input {
+    background-color: var(--color-input-background);
+    color: #000000;
+    border-width: var(--style-border-width-inputs);
+    border-color: var(--color-input-border);
+    border-style: solid;
+    border-radius: var(--style-border-radius-inputs);
+    padding: var(--padding-sm) var(--padding-md);
+    height: 100%;
+    flex-grow: 1;
+    min-width: 0;
+    font-size: var(--cart-font-size--sm);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .cart-discount__input:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .cart-discount__input::placeholder {
+    color: rgb(var(--color-input-text-rgb) / var(--opacity-subdued-text));
+  }
+
+  .cart-discount__pill-code {
+    overflow: hidden;
+    max-width: 100px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .cart-discount {
+    width: 100%;
+  }
+  
+  {% comment %} Hide discount section completely when no discounts applied {% endcomment %}
+  .cart-discount:not(:has(.cart-discount__pill)) {
+    display: none !important;
+  }
+
+  .cart-discount .svg-wrapper {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+  }
+
+  .cart-discount__codes {
+    display: none;
+    gap: var(--padding-xs);
+    flex-wrap: wrap;
+    list-style: none;
+    padding-inline: 0;
+    margin: 0;
+  }
+
+  .cart-discount__codes:has(.cart-discount__pill) {
+    display: flex;
+  }
+
+  .cart-discount__button {
+    height: 100%;
+  }
+
+  .cart-discount__content {
+    height: calc(var(--button-size) + var(--padding-2xs) + var(--padding-sm));
+  }
+  
+  .cart__summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    color: #000000;
+  }
+  
+  .cart__summary-item.cart__total {
+    padding: 12px 0;
+    border-top: 2px solid rgba(0, 0, 0, 0.12);
+    margin-top: 8px;
+    padding-top: 12px;
+  }
+  
+  .cart__total-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #000000;
+    letter-spacing: -0.2px;
+  }
+  
+  .cart__total-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+    letter-spacing: -0.3px;
+  }
+  
+  @media (max-width: 749px) {
+    .cart__total-label {
+      font-size: 14px;
+    }
+    
+    .cart__total-value {
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .cart__total-label {
+      font-size: 13px;
+    }
+    
+    .cart__total-value {
+      font-size: 16px;
+    }
+  }
+  
+  .cart__savings {
+    background-color: rgba(0, 77, 0, 0.08);
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(0, 77, 0, 0.15);
+  }
+  
+  .cart__savings-label {
+    color: #000000;
+    font-weight: 500;
+    font-size: 13px;
+  }
+  
+  .cart__savings-value {
+    color: #004d00;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    .cart__savings {
+      padding: 8px 10px;
+      margin-bottom: 10px;
+    }
+    
+    .cart__savings-label {
+      font-size: 12px;
+    }
+    
+    .cart__savings-value {
+      font-size: 13px;
+    }
+  }
+
+  .cart__savings {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--padding-sm);
+    color: rgb(var(--color-success-rgb, 34 197 94) / 1);
+  }
+
+  .cart__savings-label {
+    color: inherit;
+  }
+
+  .cart__savings-value {
+    color: inherit;
+    font-weight: var(--font-weight--heading);
+  }
+
+  .cart__shipping-info {
+    margin-top: var(--margin-xs);
+    font-size: var(--font-size--sm);
+  }
+
+  .cart__shipping-link {
+    color: rgba(0, 0, 0, 0.6);
+    text-decoration: underline;
+  }
+
+  .cart__shipping-link:hover {
+    color: #000000;
+  }
+
+  .cart__delivery-estimate {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.7);
+    margin-top: 4px;
+  }
+
+  .cart__delivery-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .cart__delivery-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .cart__delivery-text {
+    line-height: 1.4;
+  }
+
+  .cart__delivery-text strong {
+    font-weight: 600;
+    color: #000000;
+  }
+
+  .cart__security-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .cart__security-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .cart__security-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: rgba(0, 77, 0, 0.8);
+  }
+
+  .cart__security-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .cart__security-text {
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .cart__security-payment-icons {
+    margin-top: 4px;
+  }
+
+  .cart__payment-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .cart__payment-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 20px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .cart__payment-icon:hover {
+    opacity: 1;
+  }
+
+  .cart__payment-svg {
+    width: 100%;
+    height: 100%;
+    max-width: 32px;
+    max-height: 20px;
+  }
+
+  @media (max-width: 749px) {
+    .cart__delivery-estimate {
+      font-size: 11px;
+    }
+
+    .cart__security-content {
+      font-size: 11px;
+    }
+
+    .cart__payment-icon {
+      width: 28px;
+      height: 18px;
+    }
+  }
+
+  .cart-discount__pill {
+    display: flex;
+    color: #000000;
+    gap: var(--padding-xs);
+    align-items: center;
+    padding: var(--padding-xs) var(--padding-sm);
+    border-radius: var(--style-border-radius-pills);
+    background-color: var(--color-input-background);
+    text-transform: uppercase;
+  }
+
+  .cart-discount__form {
+    display: flex;
+    gap: var(--padding-md);
+    align-items: center;
+    height: 100%;
+    padding-block: var(--padding-2xs) var(--padding-sm);
+  }
+
+  :is(.cart-discount__pill-remove, .cart-discount__pill-remove:hover) {
+    --close-icon-opacity: 0.4;
+
+    color: #000000;
+    background-color: transparent;
+    pointer-events: all;
+    cursor: pointer;
+    height: 100%;
+  }
+
+  .cart-discount__error {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-block: var(--padding-2xs) var(--padding-sm);
+  }
+
+  .cart-discount__error .svg-wrapper {
+    flex-shrink: 0;
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+    margin-inline: var(--margin-3xs) var(--margin-xs);
+  }
+
+  .cart-discount__error-text {
+    margin-block-start: var(--margin-3xs);
+  }
+
+  .disclosure-trigger {
+    cursor: pointer;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--padding-sm);
+    padding-inline: 0;
+    width: 100%;
+    border: none;
+    background: #0000;
+
+    &[aria-expanded='true'] .horizontal {
+      rotate: 90deg;
+    }
+
+    &:is(:hover, :focus-visible) {
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    .horizontal {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    svg {
+      aspect-ratio: 1;
+      width: var(--icon-size-xs);
+      height: var(--icon-size-xs);
+    }
+  }
+
+  .disclosure-trigger__label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-2xs);
+    font-size: var(--cart-font-size--2xs);
+    font-weight: 500;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .disclosure-trigger .horizontal {
+      transition: rotate var(--surface-transition-duration) var(--surface-transition-timing);
+    }
+  }
+
+  .disclosure-content {
+    display: grid;
+    grid-template-rows: 1fr;
+    /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+    clip-path: inset(-5% -5% 0 -5%);
+    opacity: 1;
+
+    &[inert] {
+      grid-template-rows: 0fr;
+      opacity: 0;
+    }
+
+    & > * {
+      min-height: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .disclosure-content {
+      transition-property: grid-template-rows, opacity;
+      transition-duration: var(--surface-transition-duration);
+      transition-timing-function: var(--surface-transition-timing);
+    }
+  }
+{% endstylesheet %}

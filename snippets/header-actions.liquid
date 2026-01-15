@@ -1,0 +1,1542 @@
+<script
+  type="module"
+  src="{{ 'cart-icon.js' | asset_url }}"
+  fetchpriority="low"
+></script>
+
+{% capture cart_icon %}
+  <cart-icon
+    class="
+      header-actions__cart-icon
+      {% unless cart == empty %} header-actions__cart-icon--has-cart{% endunless %}
+    "
+    data-testid="cart-icon"
+  >
+    <span
+      class="svg-wrapper"
+      aria-hidden="true"
+    >
+      {{ 'icon-cart.svg' | inline_asset_content }}
+    </span>
+
+    {% render 'cart-bubble', limit: 100, live_region: true, test_id: test_id %}
+  </cart-icon>
+{% endcapture %}
+
+<header-actions
+  {{- block.shopify_attributes -}}
+>
+  {% if shop.customer_accounts_enabled %}
+    <script
+      src="{{ 'dialog.js' | asset_url }}"
+      type="module"
+    ></script>
+
+    <anchored-popover-component
+      data-close-on-resize="true"
+      class="account-popover mobile:hidden"
+    >
+      {% render 'account-button' with 'account-popover' as popover_id %}
+      <div
+        class="account-popover__panel details-content color-{{ settings.popover_color_scheme }}"
+        id="account-popover"
+        popover="auto"
+        ref="popover"
+      >
+        {% render 'account-actions' %}
+      </div>
+    </anchored-popover-component>
+
+    <dialog-component
+      class="account-drawer"
+      {{ block.shopify_attributes }}
+    >
+      {% render 'account-button', attributes: 'on:click="/showDialog"' %}
+      <dialog
+        ref="dialog"
+        class="color-{{ settings.popover_color_scheme }} dialog-modal dialog-drawer dialog-bottom-sheet account-drawer__dialog"
+        scroll-lock
+        aria-labelledby="account-drawer-heading"
+      >
+        <button
+          ref="closeButton"
+          on:click="/closeDialog"
+          class="button button-unstyled close-button account-drawer__close-button"
+          aria-label="{{ 'actions.close_dialog' | t }}"
+          autofocus
+        >
+          <span
+            class="svg-wrapper"
+            aria-hidden="true"
+          >
+            {{- 'icon-close.svg' | inline_asset_content -}}
+          </span>
+        </button>
+        {% render 'account-actions' %}
+      </dialog>
+    </dialog-component>
+  {% endif %}
+
+  {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+    <script
+      src="{{ 'cart-drawer.js' | asset_url }}"
+      type="module"
+      fetchpriority="low"
+    ></script>
+
+    <cart-drawer-component
+      class="cart-drawer"
+      {{ block.shopify_attributes }}
+      {% if settings.auto_open_cart_drawer %}
+        auto-open
+      {% endif %}
+    >
+      <button
+        class="button header-actions__action button-unstyled"
+        on:click="/open"
+        aria-haspopup="dialog"
+        aria-label="{{ 'accessibility.cart' | t }}"
+        aria-describedby="cart-bubble-text"
+        data-testid="cart-drawer-trigger"
+      >
+        {{ cart_icon }}
+      </button>
+
+      <dialog
+        ref="dialog"
+        class="cart-drawer__dialog dialog-modal dialog-drawer{% if cart.empty? %} cart-drawer--empty{%endif%}"
+        aria-labelledby="{% if cart.empty? %}cart-drawer-heading-empty{% else %}cart-drawer-heading{% endif %}"
+        scroll-lock
+        cart-summary-sticky="false"
+      >
+        <div class="cart-drawer__inner">
+          <cart-items-component
+            class="cart-items-component"
+            data-section-id="{{ section.id }}"
+          >
+            {%- if cart.empty? -%}
+              <div class="cart-drawer__header">
+                <h2
+                  class="cart-drawer__heading h4"
+                  id="cart-drawer-heading-empty"
+                >
+                  {{ 'content.cart_title' | t | default: 'Carrello' }}
+                </h2>
+                <button
+                  ref="closeButton"
+                  on:click="cart-drawer-component/close"
+                  class="button close-button cart-drawer__close-button button-unstyled"
+                  aria-label="{{ 'actions.close_dialog' | t }}"
+                >
+                  <span class="svg-wrapper">
+                    {{- 'icon-close.svg' | inline_asset_content -}}
+                  </span>
+                </button>
+              </div>
+
+              <div
+                class="cart-drawer__content motion-reduce cart-drawer__content--empty"
+                aria-label="{{ 'accessibility.cart' | t }}"
+              >
+                <div class="cart-drawer__items">
+                  {% render 'cart-products', drawer_context: 'drawer' %}
+                </div>
+              </div>
+            {%- else -%}
+              <div
+                class="cart-drawer__header"
+                id="cart-drawer-header"
+              >
+                <div class="cart-drawer__header-content">
+                  <h2
+                    class="cart-drawer__heading h4"
+                    id="cart-drawer-heading"
+                  >
+                    {{ 'content.cart_title' | t | default: 'Carrello' }}
+                  </h2>
+                  <p class="cart-drawer__item-count">
+                    {% if cart.item_count == 1 %}
+                      {{ 'content.cart_item_count_singular' | t }}
+                    {% else %}
+                      {{ 'content.cart_item_count' | t: count: cart.item_count }}
+                    {% endif %}
+                  </p>
+                </div>
+
+                <button
+                  ref="closeButton"
+                  on:click="cart-drawer-component/close"
+                  class="button close-button cart-drawer__close-button button-unstyled"
+                  aria-label="{{ 'actions.close_dialog' | t }}"
+                >
+                  <span class="svg-wrapper">
+                    {{- 'icon-close.svg' | inline_asset_content -}}
+                  </span>
+                </button>
+              </div>
+
+              <div
+                class="cart-drawer__content motion-reduce"
+                aria-label="{{ 'accessibility.cart' | t }}"
+              >
+                <div class="cart-drawer__items">
+                  {% render 'cart-products', drawer_context: 'drawer' %}
+
+                  <div class="cart-drawer__summary">
+                    {% render 'cart-summary' %}
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          </cart-items-component>
+        </div>
+      </dialog>
+    </cart-drawer-component>
+  {% else %}
+    <a
+      href="{{ routes.cart_url }}"
+      class="header-actions__action action__cart"
+      aria-label="{{ 'accessibility.cart' | t }}"
+      aria-describedby="cart-bubble-text"
+    >
+      {{ cart_icon }}
+    </a>
+  {% endif %}
+</header-actions>
+
+{% stylesheet %}
+  .account-popover {
+    --account-popover-min-width: 22rem;
+    --account-actions-max-width: 22rem;
+  }
+
+  .account-popover__summary {
+    padding: 0;
+
+    &:hover {
+      color: var(--color-foreground);
+    }
+  }
+
+  .account-popover__panel {
+    --account-popover-opacity: 0;
+    --account-popover-y: 20px;
+
+    position-anchor: --account-button-trigger;
+    border-radius: var(--style-border-radius-popover);
+    margin: 0;
+    left: unset;
+    width: max-content;
+    min-width: var(--account-popover-min-width);
+    max-height: 90vh;
+    box-shadow: var(--shadow-popover);
+    border: var(--style-border-popover);
+    background-color: var(--color-background);
+    overflow-y: auto;
+    overflow-x: hidden;
+    opacity: var(--account-popover-opacity);
+    translate: 0 var(--account-popover-y);
+    transition-property: display, opacity, translate;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--ease-out-quad);
+    transition-behavior: allow-discrete;
+    top: calc(anchor(bottom) + var(--header-padding));
+    right: anchor(right);
+
+    &:popover-open {
+      --account-popover-opacity: 1;
+      --account-popover-y: 0px;
+    }
+
+    @supports not (position-anchor: --account-button-trigger) {
+      top: calc(var(--anchor-top) * 1px + var(--minimum-touch-target) + var(--header-padding));
+      right: calc(var(--anchor-right) * 1px);
+    }
+
+    @supports not selector(:popover-open) {
+      &.\:popover-open {
+        --account-popover-opacity: 1;
+        --account-popover-y: 0px;
+      }
+    }
+  }
+
+  @starting-style {
+    .account-popover__panel {
+      --account-popover-opacity: 0.7;
+      --account-popover-y: 20px;
+    }
+
+    .account-popover__panel:popover-open {
+      --account-popover-opacity: 0.7;
+      --account-popover-y: 20px;
+    }
+  }
+
+  .account-drawer {
+    @media screen and (min-width: 750px) {
+      display: none;
+    }
+  }
+
+  .account-drawer__dialog {
+    --animation-speed: 0.24s;
+    --dialog-drawer-opening-animation: move-and-fade;
+    --dialog-drawer-closing-animation: move-and-fade;
+
+    height: fit-content;
+    max-height: 90vh;
+    margin: 0;
+    inset-block-end: 0;
+    inset-block-start: auto;
+    border-radius: 0;
+    padding: 0;
+    overflow-y: auto;
+  }
+  
+  .account-drawer__dialog .account-actions {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dialog-drawer.account-drawer__dialog[open] {
+    --start-x: 0px;
+    --end-x: 0px;
+    --start-y: 100%;
+    --start-opacity: 1;
+  }
+
+  .dialog-drawer.account-drawer__dialog.dialog-closing {
+    --start-x: 0px;
+    --end-x: 0px;
+    --end-y: 100%;
+    --start-opacity: 1;
+  }
+
+  .account-drawer__close-button {
+    z-index: 1;
+    inset-block-start: var(--padding-xs);
+    inset-inline-end: var(--padding-xs);
+    color: var(--color-foreground);
+    background-color: transparent;
+  }
+
+  .account-drawer__close-button .svg-wrapper {
+    display: flex;
+    width: var(--button-size);
+    height: var(--button-size);
+    align-items: center;
+    justify-content: center;
+  }
+
+  @keyframes account-drawer-slide-in {
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes account-drawer-slide-out {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  .cart-drawer {
+    --cart-drawer-padding: 12px 16px;
+    --cart-drawer-padding-desktop: 16px 20px;
+    --cart-font-size--2xs: var(--font-size--2xs);
+    --cart-font-size--xs: var(--font-size--xs);
+    --cart-font-size--sm: var(--font-size--sm);
+    --cart-font-size--md: var(--font-size--md);
+    --cart-font-size--lg: var(--font-size--lg);
+    --cart-font-size--xl: var(--font-size--xl);
+    --cart-font-size--2xl: var(--font-size--2xl);
+  }
+
+  .cart-drawer__dialog {
+    position: fixed;
+    overflow: hidden;
+    border-radius: 0;
+    width: var(--sidebar-width);
+    max-width: 95vw;
+    height: 100%;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border-left: var(--style-border-drawer);
+    box-shadow: var(--shadow-drawer);
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  .cart-drawer__inner {
+    height: 100%;
+    overflow: hidden;
+    color: #000000;
+  }
+
+  .cart-items-component {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #000000;
+  }
+
+  .cart-drawer__dialog {
+    color: #000000;
+  }
+
+  /* Ensure all text in cart drawer is black by default - FORCE IT */
+  .cart-drawer__dialog,
+  .cart-drawer__dialog *,
+  .cart-drawer__dialog p,
+  .cart-drawer__dialog span,
+  .cart-drawer__dialog div,
+  .cart-drawer__dialog h1,
+  .cart-drawer__dialog h2,
+  .cart-drawer__dialog h3,
+  .cart-drawer__dialog h4,
+  .cart-drawer__dialog h5,
+  .cart-drawer__dialog h6,
+  .cart-drawer__dialog a,
+  .cart-drawer__dialog label,
+  .cart-drawer__dialog dt,
+  .cart-drawer__dialog dd,
+  .cart-drawer__dialog li,
+  .cart-drawer__dialog td,
+  .cart-drawer__dialog th,
+  .cart-drawer__dialog small,
+  .cart-drawer__dialog strong,
+  .cart-drawer__dialog em,
+  .cart-drawer__dialog b,
+  .cart-drawer__dialog i,
+  .cart-drawer__dialog .cart-drawer__heading,
+  .cart-drawer__dialog .cart-drawer__item-count,
+  .cart-drawer__dialog .cart-items__title,
+  .cart-drawer__dialog .cart-items__price,
+  .cart-drawer__dialog .cart-items__variant,
+  .cart-drawer__dialog .cart-items__properties,
+  .cart-drawer__dialog .cart-items__vendor,
+  .cart-drawer__dialog .cart-items__description-placeholder,
+  .cart-drawer__dialog .cart-items__description-text,
+  .cart-drawer__dialog .cart-items__discounts,
+  .cart-drawer__dialog .cart-items__selling-plan,
+  .cart-drawer__dialog .cart__total-label,
+  .cart-drawer__dialog .cart__total-value,
+  .cart-drawer__dialog .cart__summary-item,
+  .cart-drawer__dialog .cart__installments,
+  .cart-drawer__dialog .cart__shipping-link,
+  .cart-drawer__dialog .cart-discount__pill,
+  .cart-drawer__dialog .disclosure-trigger,
+  .cart-drawer__dialog .cart-note__label,
+  .cart-drawer__dialog text-component,
+  /* Force titles and headings */
+  .cart-drawer__dialog h2.cart-drawer__heading,
+  .cart-drawer__dialog .cart-drawer__heading,
+  .cart-drawer__dialog .cart-drawer__heading *,
+  .cart-drawer__dialog .cart-items__title,
+  .cart-drawer__dialog .cart-items__title *,
+  .cart-drawer__dialog a.cart-items__title,
+  .cart-drawer__dialog a.cart-items__title *,
+  /* Force counter icons and quantity selectors */
+  .cart-drawer__dialog .quantity-selector,
+  .cart-drawer__dialog .quantity-selector *,
+  .cart-drawer__dialog .quantity-selector input,
+  .cart-drawer__dialog .quantity-selector button,
+  .cart-drawer__dialog .quantity-minus,
+  .cart-drawer__dialog .quantity-plus,
+  .cart-drawer__dialog .quantity-selector .quantity-minus,
+  .cart-drawer__dialog .quantity-selector .quantity-plus,
+  .cart-drawer__dialog .cart-items__quantity input,
+  .cart-drawer__dialog .cart-items__quantity button,
+  .cart-drawer__dialog .cart-items__quantity-actions,
+  .cart-drawer__dialog .cart-items__quantity-actions *,
+  .cart-drawer__dialog .cart-bubble,
+  .cart-drawer__dialog .cart-bubble *,
+  .cart-drawer__dialog .cart-bubble__text,
+  .cart-drawer__dialog .cart-bubble__text-count,
+  /* Force tax note and small text elements */
+  .cart-drawer__dialog .tax-note,
+  .cart-drawer__dialog .tax-note *,
+  .cart-drawer__dialog .cart__summary-item.tax-note,
+  .cart-drawer__dialog .cart__summary-item.tax-note *,
+  .cart-drawer__dialog .tax-note small,
+  .cart-drawer__dialog .cart__summary-item.tax-note small,
+  .cart-drawer__dialog .cart__summary-item small,
+  .cart-drawer__dialog small {
+    color: #000000 !important;
+  }
+
+  /* Exceptions for buttons that need white text */
+  .cart-drawer__dialog .custom-checkout-button,
+  .cart-drawer__dialog .custom-checkout-button *,
+  .cart-drawer__dialog #custom-cart-checkout-button,
+  .cart-drawer__dialog #custom-cart-checkout-button *,
+  .cart-drawer__dialog .cart__checkout-button,
+  .cart-drawer__dialog .cart__checkout-button * {
+    color: #ffffff !important;
+  }
+
+  .cart-drawer__dialog:modal {
+    max-height: 100dvh;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+
+  .cart-drawer__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #ffffff;
+    position: relative;
+    min-height: 0;
+  }
+
+  .cart-drawer__content--empty {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .cart-drawer__items {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px var(--cart-drawer-padding);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+
+    @media screen and (min-width: 750px) {
+      padding: 16px var(--cart-drawer-padding-desktop);
+    }
+  }
+  
+  /* Remove any scroll from nested elements */
+
+  .cart-drawer__heading {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    line-height: 1.3;
+    letter-spacing: -0.2px;
+  }
+
+  .cart-drawer__close-button {
+    margin: 0;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .cart-drawer__close-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .cart-drawer__close-button:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .cart-drawer__close-button:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+
+  .cart-drawer__header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-drawer__item-count {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.7);
+    margin: 0;
+    padding: 0;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .cart-drawer--empty .cart-drawer__content {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .cart-drawer--empty .cart-drawer__heading {
+    margin-bottom: 0;
+  }
+
+  .cart-drawer__summary {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px var(--cart-drawer-padding);
+    margin-top: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    color: #000000;
+
+    @media screen and (min-width: 750px) {
+      padding: 20px var(--cart-drawer-padding-desktop);
+    }
+  }
+
+  .cart-actions summary,
+  .cart-actions .disclosure-trigger {
+    padding-inline: 0;
+    padding-block: 10px;
+    line-height: 1.2;
+    min-height: 44px;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+  }
+
+  .cart-actions summary:hover,
+  .cart-actions .disclosure-trigger:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .cart-actions summary:focus-visible,
+  .cart-actions .disclosure-trigger:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+
+  .cart-drawer__summary .cart__summary-totals:not(:has(.cart__original-total-container:empty)) {
+    border-block-start: 1px solid rgba(0, 0, 0, 0.1);
+    padding-block-start: 12px;
+  }
+
+  .cart-drawer__heading--empty {
+    display: flex;
+    justify-content: center;
+  }
+
+  .cart-drawer__items .cart-items__wrapper {
+    width: 100%;
+  }
+
+  .cart-drawer__items .cart-items__table-row {
+    margin-bottom: 12px;
+  }
+
+  .cart-drawer__items .cart-items__table-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .cart-drawer--empty .cart-drawer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    margin-top: 0;
+  }
+
+  .cart-drawer:not(:has(.cart-form)) .cart-drawer__content {
+    justify-content: center;
+  }
+
+  .cart-drawer__header {
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--cart-drawer-padding);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-shrink: 0;
+
+    @media screen and (min-width: 750px) {
+      padding: var(--cart-drawer-padding-desktop);
+    }
+  }
+
+  .cart-drawer--empty .cart-drawer__header {
+    justify-content: right;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .cart-drawer--empty .cart-drawer__heading {
+    text-align: center;
+  }
+
+  .cart-drawer:not(:has(.cart-form)) .cart-items__wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+
+    @media screen and (max-width: 749px) {
+      justify-self: flex-end;
+    }
+  }
+
+  .header__column--right header-actions {
+    margin-inline-start: 0;
+    justify-content: flex-end;
+  }
+
+  .header-actions__action {
+    --button-color: var(--color-foreground);
+
+    cursor: pointer;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .header-actions__action:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+  }
+
+  .header-actions__action:active {
+    transform: scale(0.95);
+  }
+
+  .header-actions__action .svg-wrapper {
+    height: var(--button-size);
+    width: var(--button-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-actions__action svg {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+  }
+
+  .header-actions__cart-icon {
+    --cart-bubble-size: 20px;
+    --cart-bubble-top: 4.5px;
+    --cart-bubble-right: 2.5px;
+
+    position: relative;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  cart-icon {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-actions__cart-icon .cart-bubble,
+  cart-icon .cart-bubble {
+    position: absolute !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    top: var(--cart-bubble-top) !important;
+    right: var(--cart-bubble-right) !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+  }
+  
+  .header-actions__cart-icon .cart-bubble__text,
+  cart-icon .cart-bubble__text {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .cart-drawer__heading .cart-bubble {
+    width: fit-content;
+    border-radius: var(--style-border-radius-buttons-primary);
+    aspect-ratio: auto;
+    padding: var(--cart-padding);
+  }
+
+  .cart-drawer__heading .cart-bubble[data-maintain-ratio] {
+    aspect-ratio: 1;
+    min-width: 26px;
+  }
+
+  .header-actions__cart-icon .cart-bubble__text,
+  .cart-drawer__heading .cart-bubble__text {
+    font-family: var(--font-paragraph--family);
+    font-weight: var(--font-paragraph--weight);
+  }
+
+  .header-actions__cart-icon.header-actions__cart-icon--has-cart svg {
+    /* Create donut mask where the cart bubble sits */
+    mask: radial-gradient(
+      calc(var(--cart-bubble-size) + 2px) at calc(100% - var(--cart-bubble-right)) var(--cart-bubble-top),
+      transparent 45.45%,
+      #fff 45.45%,
+      #fff 100%
+    );
+  }
+
+  .cart-drawer__heading .cart-bubble__background {
+    background-color: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));
+  }
+
+
+  .cart-drawer__heading .cart-bubble__text,
+  .cart-drawer__heading .cart-bubble__text-count,
+  .cart-drawer__dialog .cart-bubble__text,
+  .cart-drawer__dialog .cart-bubble__text-count {
+    color: #000000;
+  }
+
+  .cart-drawer__heading .cart-bubble__background,
+  .header-actions__cart-icon .cart-bubble__background,
+  cart-icon .cart-bubble__background {
+    display: none !important; /* Hide background - text-count has its own background */
+  }
+
+  .header-actions__cart-icon .cart-bubble,
+  cart-icon .cart-bubble {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  
+  .header-actions__cart-icon .cart-bubble__text,
+  cart-icon .cart-bubble__text {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .cart-bubble--animating .cart-bubble__background {
+    animation: grow var(--animation-speed) var(--animation-easing);
+  }
+
+  .cart-bubble--animating .cart-bubble__text {
+    --start-y: -1em;
+    --start-opacity: 1;
+    /* Set initial transform state before animation starts */
+    transform: translate(0, var(--start-y, -1em));
+    opacity: var(--start-opacity, 1);
+    animation: move-and-fade var(--animation-speed) var(--animation-easing);
+  }
+
+  cart-icon:has(.cart-bubble__text-count:empty) {
+    --cart-bubble-size: 10px;
+    --cart-bubble-top: 9px;
+    --cart-bubble-right: 9px;
+
+    .svg-wrapper {
+      --cart-bubble-top: 4px;
+      --cart-bubble-right: 4px;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  // Force all text in cart drawer to be black - handles dynamic content
+  (function() {
+    function fixTitleLayout() {
+      const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+      if (!drawer) return;
+      
+      // Fix title vertical layout
+      const titles = drawer.querySelectorAll('.cart-items__title, a.cart-items__title, .cart-items__details p a');
+      titles.forEach(title => {
+        title.style.setProperty('writing-mode', 'horizontal-tb', 'important');
+        title.style.setProperty('text-orientation', 'mixed', 'important');
+        title.style.setProperty('direction', 'ltr', 'important');
+        title.style.setProperty('white-space', 'normal', 'important');
+        title.style.setProperty('display', 'inline', 'important');
+        title.style.setProperty('unicode-bidi', 'normal', 'important');
+      });
+      
+      // Fix parent elements
+      const titleParents = drawer.querySelectorAll('.cart-items__details, .cart-items__details p, .cart-items__table-row, .cart-items__table-row td');
+      titleParents.forEach(el => {
+        el.style.setProperty('writing-mode', 'horizontal-tb', 'important');
+        el.style.setProperty('text-orientation', 'mixed', 'important');
+        el.style.setProperty('direction', 'ltr', 'important');
+        el.style.setProperty('white-space', 'normal', 'important');
+      });
+    }
+    
+    function fixImageVisibility() {
+      const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+      if (!drawer) return;
+      
+      // Fix images - remove all filters
+      const images = drawer.querySelectorAll('.cart-items__media-image, .cart-items__media img, .cart-items__media-container img, .cart-items__media a img, img.cart-items__media-image');
+      images.forEach(img => {
+        img.style.setProperty('filter', 'none', 'important');
+        img.style.setProperty('-webkit-filter', 'none', 'important');
+        img.style.setProperty('opacity', '1', 'important');
+        img.style.setProperty('visibility', 'visible', 'important');
+        img.style.setProperty('display', 'block', 'important');
+        img.style.setProperty('brightness', '1', 'important');
+        img.style.setProperty('contrast', '1', 'important');
+        img.style.setProperty('grayscale', '0%', 'important');
+        img.style.setProperty('invert', '0%', 'important');
+        img.style.setProperty('saturate', '100%', 'important');
+        img.style.setProperty('sepia', '0%', 'important');
+        img.style.setProperty('backdrop-filter', 'none', 'important');
+        img.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+      });
+      
+      // Fix media containers
+      const containers = drawer.querySelectorAll('.cart-items__media-container, .cart-items__media a');
+      containers.forEach(container => {
+        container.style.setProperty('filter', 'none', 'important');
+        container.style.setProperty('-webkit-filter', 'none', 'important');
+      });
+    }
+    
+    function forceBlackText() {
+      const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+      if (!drawer) return;
+      
+      // Set CSS variables on drawer
+      drawer.style.setProperty('--color-foreground', '#000000', 'important');
+      drawer.style.setProperty('--color-background', '#ffffff', 'important');
+      
+      // FORCE ALL TEXT ELEMENTS TO BE BLACK - NO EXCEPTIONS (except checkout buttons)
+      const allElements = drawer.querySelectorAll('*');
+      allElements.forEach(el => {
+        try {
+          // Skip checkout buttons and their children
+          if (el.closest('.cart__checkout-button') || el.closest('.custom-checkout-button') || el.closest('#custom-cart-checkout-button')) {
+            return;
+          }
+          
+          // Skip SVG elements (they use fill/stroke, not color)
+          if (el.tagName === 'svg' || el.tagName === 'path' || el.tagName === 'circle' || el.tagName === 'rect' || el.tagName === 'g') {
+            return;
+          }
+          
+          // Force ALL text elements to be black
+          el.style.setProperty('color', '#000000', 'important');
+        } catch(e) {}
+      });
+      
+      // Force checkout button to have white text on black background
+      const checkout = drawer.querySelector('.cart__checkout-button, .custom-checkout-button, #custom-cart-checkout-button, button#checkout');
+      if (checkout) {
+        checkout.style.setProperty('color', '#ffffff', 'important');
+        checkout.style.setProperty('background-color', '#000000', 'important');
+        const allChildren = checkout.querySelectorAll('*');
+        allChildren.forEach(child => {
+          child.style.setProperty('color', '#ffffff', 'important');
+        });
+      }
+      
+      // Force cart bubble text to be black
+      const bubbles = drawer.querySelectorAll('.cart-bubble__text, .cart-bubble__text-count');
+      bubbles.forEach(bubble => {
+        bubble.style.setProperty('color', '#000000', 'important');
+      });
+      
+      // Inject style tag to force black text immediately
+      function injectBlackTextStyle() {
+        let styleTag = document.getElementById('force-cart-black-text');
+        if (!styleTag) {
+          styleTag = document.createElement('style');
+          styleTag.id = 'force-cart-black-text';
+          styleTag.textContent = `
+            .cart-drawer__dialog *:not(.custom-checkout-button):not(.custom-checkout-button *):not(#custom-cart-checkout-button):not(#custom-cart-checkout-button *):not(.cart__checkout-button):not(.cart__checkout-button *) {
+              color: #000000 !important;
+            }
+          `;
+          document.head.appendChild(styleTag);
+        }
+      }
+      injectBlackTextStyle();
+      
+      // Force product titles to be black - VERY SPECIFIC
+      const productTitles = drawer.querySelectorAll('.cart-items__title, a.cart-items__title, .cart-items__details p a.cart-items__title, .cart-items__details .cart-items__title, .cart-drawer__heading, .cart-drawer__heading *, h2.cart-drawer__heading, h2.cart-drawer__heading *');
+      productTitles.forEach(title => {
+        title.style.setProperty('color', '#000000', 'important');
+        title.style.setProperty('border', 'none', 'important');
+        title.style.setProperty('outline', 'none', 'important');
+        title.style.setProperty('box-shadow', 'none', 'important');
+        title.style.setProperty('background', 'transparent', 'important');
+        // Also force all children
+        const children = title.querySelectorAll('*');
+        children.forEach(child => {
+          child.style.setProperty('color', '#000000', 'important');
+          child.style.setProperty('border', 'none', 'important');
+          child.style.setProperty('outline', 'none', 'important');
+          // Force SVG fills
+          if (child.tagName === 'svg' || child.tagName === 'path') {
+            child.style.setProperty('fill', '#000000', 'important');
+            child.style.setProperty('stroke', '#000000', 'important');
+          }
+        });
+      });
+      
+      // Force counter icons and quantity selectors - VERY SPECIFIC
+      const quantitySelectors = drawer.querySelectorAll('.quantity-selector, .quantity-selector *, .quantity-selector input[type="number"], .quantity-selector button, .quantity-minus, .quantity-plus, .cart-items__quantity input, .cart-items__quantity button, .cart-items__quantity-actions, .cart-items__quantity-actions *');
+      quantitySelectors.forEach(el => {
+        el.style.setProperty('color', '#000000', 'important');
+        // Force SVG fills in quantity buttons
+        const svgs = el.querySelectorAll('svg, path');
+        svgs.forEach(svg => {
+          svg.style.setProperty('fill', '#000000', 'important');
+          svg.style.setProperty('stroke', '#000000', 'important');
+        });
+      });
+      
+      // Force tax note and small text elements to be black
+      const taxNotes = drawer.querySelectorAll('.tax-note, .tax-note *, .cart__summary-item.tax-note, .cart__summary-item.tax-note *, .tax-note small, .cart__summary-item.tax-note small, .cart__summary-item small, small');
+      taxNotes.forEach(el => {
+        el.style.setProperty('color', '#000000', 'important');
+      });
+      
+      // Force prices to be black and visible
+      const prices = drawer.querySelectorAll('.cart-items__price, .cart-items__price *, text-component, text-component *');
+      prices.forEach(price => {
+        price.style.setProperty('color', '#000000', 'important');
+        price.style.setProperty('display', 'block', 'important');
+        price.style.setProperty('visibility', 'visible', 'important');
+        price.style.setProperty('opacity', '1', 'important');
+      });
+      
+      // Force all text in cart items details to be black
+      const cartDetails = drawer.querySelectorAll('.cart-items__details, .cart-items__details *, .cart-items__variant, .cart-items__variant *, .cart-items__properties, .cart-items__properties *');
+      cartDetails.forEach(el => {
+        if (!el.closest('.cart__checkout-button') && !el.closest('.custom-checkout-button')) {
+          const style = window.getComputedStyle(el);
+          const color = style.color;
+          const colorMatch = color.match(/(\d+)/g);
+          if (colorMatch && colorMatch.length >= 3) {
+            const r = parseInt(colorMatch[0]);
+            const g = parseInt(colorMatch[1]);
+            const b = parseInt(colorMatch[2]);
+            const isWhite = r > 200 && g > 200 && b > 200;
+            if (isWhite) {
+              el.style.setProperty('color', '#000000', 'important');
+            }
+          }
+        }
+      });
+      
+      // Also fix title layout and images
+      fixTitleLayout();
+      fixImageVisibility();
+    }
+    
+    function fixSummaryAndCheckout() {
+      const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+      if (!drawer) return;
+      
+      // Ensure summary is static (not sticky) - it's now inside the scrollable container
+      const summary = drawer.querySelector('.cart-drawer__summary');
+      if (summary) {
+        // Ensure it's static and not sticky
+        summary.style.setProperty('position', 'static', 'important');
+        summary.style.setProperty('bottom', 'auto', 'important');
+        summary.style.setProperty('top', 'auto', 'important');
+        summary.style.setProperty('left', 'auto', 'important');
+        summary.style.setProperty('right', 'auto', 'important');
+        summary.style.setProperty('transform', 'none', 'important');
+        summary.style.setProperty('will-change', 'auto', 'important');
+        
+        // Remove any sticky-related attributes
+        summary.removeAttribute('data-sticky');
+        summary.removeAttribute('sticky');
+        
+        // Also force the dialog attribute
+        drawer.setAttribute('cart-summary-sticky', 'false');
+      }
+      
+      // Hide shopify-accelerated-checkout-cart completely
+      const acceleratedCheckout = drawer.querySelector('shopify-accelerated-checkout-cart');
+      if (acceleratedCheckout) {
+        acceleratedCheckout.style.setProperty('display', 'none', 'important');
+        acceleratedCheckout.style.setProperty('visibility', 'hidden', 'important');
+        acceleratedCheckout.style.setProperty('opacity', '0', 'important');
+        acceleratedCheckout.style.setProperty('height', '0', 'important');
+        acceleratedCheckout.style.setProperty('width', '0', 'important');
+        acceleratedCheckout.style.setProperty('overflow', 'hidden', 'important');
+      }
+      
+      // Hide additional checkout buttons
+      const additionalCheckout = drawer.querySelectorAll('.additional-checkout-buttons, .cart__additional-checkout-buttons');
+      additionalCheckout.forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+      });
+      
+      // Remove any duplicate checkout buttons (keep only the first one) - PHYSICALLY REMOVE FROM DOM
+      const cartCtas = drawer.querySelector('.cart__ctas');
+      if (cartCtas) {
+        const existingCheckout = cartCtas.querySelector('.cart__checkout-button, button#checkout');
+        if (existingCheckout) {
+          // Remove ALL other checkout buttons in the entire drawer
+          const allCheckoutButtons = drawer.querySelectorAll('.cart__checkout-button, button#checkout, button[name="checkout"]');
+          allCheckoutButtons.forEach(btn => {
+            if (btn !== existingCheckout) {
+              btn.remove();
+            }
+          });
+          
+          // Also check for buttons with "checkout" text
+          const allButtons = drawer.querySelectorAll('button');
+          allButtons.forEach(btn => {
+            if (btn !== existingCheckout && (btn.textContent?.toLowerCase().includes('checkout') || btn.textContent?.toLowerCase().includes('check-out'))) {
+              const cartCtasCheck = drawer.querySelector('.cart__ctas');
+              if (!cartCtasCheck?.contains(btn)) {
+                btn.remove();
+              }
+            }
+          });
+        }
+      }
+      
+      // Also remove any shopify-accelerated-checkout-cart elements EVERYWHERE
+      const allAcceleratedCheckout = drawer.querySelectorAll('shopify-accelerated-checkout-cart');
+      allAcceleratedCheckout.forEach(el => el.remove());
+      
+      // Remove any additional checkout buttons containers EVERYWHERE
+      const allAdditionalCheckout = drawer.querySelectorAll('.additional-checkout-buttons, .cart__additional-checkout-buttons');
+      allAdditionalCheckout.forEach(el => el.remove());
+      
+      // Ensure cart__ctas only has one button - VERY AGGRESSIVE
+      const cartCtas = drawer.querySelector('.cart__ctas');
+      if (cartCtas) {
+        const buttons = cartCtas.querySelectorAll('button');
+        if (buttons.length > 1) {
+          // Keep only the first checkout button, hide all others
+          const firstCheckout = cartCtas.querySelector('.cart__checkout-button, button#checkout, button[name="checkout"]');
+          buttons.forEach(btn => {
+            if (btn !== firstCheckout) {
+              btn.style.setProperty('display', 'none', 'important');
+              btn.style.setProperty('visibility', 'hidden', 'important');
+              btn.style.setProperty('opacity', '0', 'important');
+              btn.style.setProperty('height', '0', 'important');
+              btn.style.setProperty('width', '0', 'important');
+              btn.style.setProperty('position', 'absolute', 'important');
+              btn.style.setProperty('left', '-9999px', 'important');
+            }
+          });
+        }
+        
+        // Physically remove any duplicate buttons or checkout elements
+        const allChildren = Array.from(cartCtas.children);
+        const firstCheckout = cartCtas.querySelector('.cart__checkout-button, button#checkout');
+        allChildren.forEach(child => {
+          if (child.tagName === 'BUTTON' && child !== firstCheckout) {
+            child.remove();
+          }
+          // Remove shopify-accelerated-checkout-cart if it appears in cart__ctas
+          if (child.tagName === 'SHOPIFY-ACCELERATED-CHECKOUT-CART' || child.classList.contains('additional-checkout-buttons')) {
+            child.remove();
+          }
+        });
+      }
+    }
+    
+    // MutationObserver to catch dynamically added checkout buttons - VERY AGGRESSIVE
+    let checkoutObserver = null;
+    function setupCheckoutObserver() {
+      const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+      if (!drawer) return;
+      
+      if (checkoutObserver) {
+        checkoutObserver.disconnect();
+      }
+      
+      // Function to remove all duplicate checkout buttons - keep only our custom one
+      function removeDuplicates() {
+        const cartCtas = drawer.querySelector('.cart__ctas');
+        const summary = drawer.querySelector('.cart-drawer__summary');
+        if (!cartCtas) return;
+        
+        const customCheckout = cartCtas.querySelector('#custom-cart-checkout-button, .custom-checkout-button');
+        
+        // Remove all other checkout buttons in cart__ctas (except our custom one)
+        const allButtonsInCtas = cartCtas.querySelectorAll('button');
+        allButtonsInCtas.forEach(btn => {
+          if (btn !== customCheckout) {
+            btn.remove();
+          }
+        });
+        
+        // Remove all checkout buttons in summary that are not our custom one
+        if (summary) {
+          const allButtonsInSummary = summary.querySelectorAll('button');
+          allButtonsInSummary.forEach(btn => {
+            if (btn !== customCheckout && (btn.textContent?.toLowerCase().includes('checkout') || btn.id === 'checkout' || btn.name === 'checkout' || btn.classList.contains('cart__checkout-button'))) {
+              btn.remove();
+            }
+          });
+        }
+        
+        // Remove shopify-accelerated-checkout-cart everywhere
+        const allAccelerated = drawer.querySelectorAll('shopify-accelerated-checkout-cart');
+        allAccelerated.forEach(el => el.remove());
+        
+        // Remove additional checkout buttons containers
+        const allAdditional = drawer.querySelectorAll('.additional-checkout-buttons, .cart__additional-checkout-buttons');
+        allAdditional.forEach(el => el.remove());
+      }
+      
+      checkoutObserver = new MutationObserver((mutations) => {
+        let shouldRemove = false;
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) { // Element node
+              // Check if it's a checkout button or contains one (but NOT our custom one)
+              if (node.tagName === 'BUTTON' && node.id !== 'custom-cart-checkout-button' && !node.classList.contains('custom-checkout-button') && (
+                node.classList.contains('cart__checkout-button') ||
+                node.id === 'checkout' ||
+                node.name === 'checkout' ||
+                (node.textContent || '').toLowerCase().includes('checkout') ||
+                (node.textContent || '').toLowerCase().includes('check-out')
+              )) {
+                shouldRemove = true;
+              }
+              // Check for shopify-accelerated-checkout-cart
+              if (node.tagName === 'SHOPIFY-ACCELERATED-CHECKOUT-CART' || 
+                  node.classList?.contains('additional-checkout-buttons') ||
+                  node.classList?.contains('cart__additional-checkout-buttons')) {
+                shouldRemove = true;
+              }
+              // Recursively check children (but NOT our custom one)
+              const checkoutButtons = node.querySelectorAll?.('.cart__checkout-button, button#checkout, button[name="checkout"]');
+              if (checkoutButtons && checkoutButtons.length > 0) {
+                const hasCustom = Array.from(checkoutButtons).some(btn => btn.id === 'custom-cart-checkout-button' || btn.classList.contains('custom-checkout-button'));
+                if (!hasCustom) {
+                  shouldRemove = true;
+                }
+              }
+              const accelerated = node.querySelectorAll?.('shopify-accelerated-checkout-cart');
+              if (accelerated && accelerated.length > 0) {
+                shouldRemove = true;
+              }
+            }
+          });
+        });
+        if (shouldRemove) {
+          removeDuplicates();
+        }
+        fixSummaryAndCheckout();
+      });
+      
+      checkoutObserver.observe(drawer, {
+        childList: true,
+        subtree: true,
+        attributes: false,
+        characterData: false
+      });
+      
+      // Also run removeDuplicates immediately and on intervals
+      removeDuplicates();
+      setTimeout(removeDuplicates, 100);
+      setTimeout(removeDuplicates, 300);
+      setTimeout(removeDuplicates, 600);
+      setTimeout(removeDuplicates, 1000);
+    }
+
+    // Run immediately
+    // Inject style tag immediately on page load
+    function injectBlackTextStyle() {
+      let styleTag = document.getElementById('force-cart-black-text');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'force-cart-black-text';
+          styleTag.textContent = `
+            .cart-drawer__dialog,
+            .cart-drawer__dialog *,
+            .cart-drawer__dialog p,
+            .cart-drawer__dialog span,
+            .cart-drawer__dialog div,
+            .cart-drawer__dialog h1,
+            .cart-drawer__dialog h2,
+            .cart-drawer__dialog h3,
+            .cart-drawer__dialog h4,
+            .cart-drawer__dialog h5,
+            .cart-drawer__dialog h6,
+            .cart-drawer__dialog a,
+            .cart-drawer__dialog label,
+            .cart-drawer__dialog dt,
+            .cart-drawer__dialog dd,
+            .cart-drawer__dialog li,
+            .cart-drawer__dialog td,
+            .cart-drawer__dialog th,
+            .cart-drawer__dialog small,
+            .cart-drawer__dialog strong,
+            .cart-drawer__dialog em,
+            .cart-drawer__dialog b,
+            .cart-drawer__dialog i,
+            .cart-drawer__dialog text-component,
+            .cart-drawer__dialog .cart-drawer__heading,
+            .cart-drawer__dialog .cart-drawer__heading *,
+            .cart-drawer__dialog h2.cart-drawer__heading,
+            .cart-drawer__dialog h2.cart-drawer__heading *,
+            .cart-drawer__dialog .cart-items__title,
+            .cart-drawer__dialog .cart-items__title *,
+            .cart-drawer__dialog a.cart-items__title,
+            .cart-drawer__dialog a.cart-items__title *,
+            .cart-drawer__dialog .quantity-selector,
+            .cart-drawer__dialog .quantity-selector *,
+            .cart-drawer__dialog .quantity-selector input,
+            .cart-drawer__dialog .quantity-selector button,
+            .cart-drawer__dialog .quantity-minus,
+            .cart-drawer__dialog .quantity-plus,
+            .cart-drawer__dialog .cart-items__quantity input,
+            .cart-drawer__dialog .cart-items__quantity button,
+            .cart-drawer__dialog .cart-items__quantity-actions,
+            .cart-drawer__dialog .cart-items__quantity-actions *,
+            .cart-drawer__dialog .tax-note,
+            .cart-drawer__dialog .tax-note *,
+            .cart-drawer__dialog .cart__summary-item.tax-note,
+            .cart-drawer__dialog .cart__summary-item.tax-note *,
+            .cart-drawer__dialog .tax-note small,
+            .cart-drawer__dialog .cart__summary-item.tax-note small,
+            .cart-drawer__dialog .cart__summary-item small,
+            .cart-drawer__dialog small {
+              color: #000000 !important;
+            }
+            .cart-drawer__dialog .quantity-selector svg,
+            .cart-drawer__dialog .quantity-selector svg *,
+            .cart-drawer__dialog .quantity-minus svg,
+            .cart-drawer__dialog .quantity-plus svg,
+            .cart-drawer__dialog .cart-items__quantity svg,
+            .cart-drawer__dialog .cart-items__quantity svg * {
+              fill: #000000 !important;
+              stroke: #000000 !important;
+            }
+            .cart-drawer__dialog .custom-checkout-button,
+            .cart-drawer__dialog .custom-checkout-button *,
+            .cart-drawer__dialog #custom-cart-checkout-button,
+            .cart-drawer__dialog #custom-cart-checkout-button *,
+            .cart-drawer__dialog .cart__checkout-button,
+            .cart-drawer__dialog .cart__checkout-button * {
+              color: #ffffff !important;
+            }
+          `;
+        document.head.appendChild(styleTag);
+      }
+    }
+    injectBlackTextStyle();
+    
+    forceBlackText();
+    fixSummaryAndCheckout();
+    
+    // Only run interval when drawer is open
+    let forceInterval = null;
+    function startInterval() {
+      if (forceInterval) return; // Already running
+      forceInterval = setInterval(() => {
+        const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+        if (drawer) {
+          forceBlackText();
+          fixTitleLayout();
+          fixImageVisibility();
+          fixSummaryAndCheckout();
+          
+          // Also aggressively remove duplicate checkout buttons on every interval - keep only our custom one
+          const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+          if (drawer) {
+            const cartCtas = drawer.querySelector('.cart__ctas');
+            if (cartCtas) {
+              const customCheckout = cartCtas.querySelector('#custom-cart-checkout-button, .custom-checkout-button');
+              
+              // Remove ALL other checkout buttons in the entire drawer (except our custom one)
+              const allCheckoutButtons = drawer.querySelectorAll('.cart__checkout-button, button#checkout, button[name="checkout"]');
+              allCheckoutButtons.forEach(btn => {
+                if (btn !== customCheckout) {
+                  btn.remove();
+                }
+              });
+              
+              // Also check for buttons with "checkout" text (except our custom one)
+              const allButtons = drawer.querySelectorAll('button');
+              allButtons.forEach(btn => {
+                if (btn !== customCheckout && (btn.textContent?.toLowerCase().includes('checkout') || btn.textContent?.toLowerCase().includes('check-out'))) {
+                  const cartCtasCheck = drawer.querySelector('.cart__ctas');
+                  if (!cartCtasCheck?.contains(btn) || btn.id !== 'custom-cart-checkout-button') {
+                    btn.remove();
+                  }
+                }
+              });
+              
+              // Remove shopify-accelerated-checkout-cart
+              const allAccelerated = drawer.querySelectorAll('shopify-accelerated-checkout-cart');
+              allAccelerated.forEach(el => el.remove());
+              
+              // Remove additional checkout buttons containers
+              const allAdditional = drawer.querySelectorAll('.additional-checkout-buttons, .cart__additional-checkout-buttons');
+              allAdditional.forEach(el => el.remove());
+            }
+          }
+        } else {
+          // Drawer closed, stop interval
+          if (forceInterval) {
+            clearInterval(forceInterval);
+            forceInterval = null;
+          }
+        }
+      }, 100); // Run every 100ms for faster fixes
+    }
+    
+    function stopInterval() {
+      if (forceInterval) {
+        clearInterval(forceInterval);
+        forceInterval = null;
+      }
+    }
+
+    // Watch for drawer opening
+    const observer = new MutationObserver(() => {
+      const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+      if (drawer && !forceInterval) {
+        injectBlackTextStyle();
+        startInterval();
+        forceBlackText();
+        fixSummaryAndCheckout();
+        setupCheckoutObserver();
+        // Run fixSummaryAndCheckout multiple times to ensure it sticks
+        setTimeout(fixSummaryAndCheckout, 100);
+        setTimeout(fixSummaryAndCheckout, 300);
+        setTimeout(fixSummaryAndCheckout, 600);
+      } else if (!drawer && forceInterval) {
+        stopInterval();
+        if (checkoutObserver) {
+          checkoutObserver.disconnect();
+          checkoutObserver = null;
+        }
+      }
+    });
+
+    // Observe the document for drawer changes
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['open', 'class']
+    });
+
+    // Also listen for dialog open events
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('button[aria-label*="cart"], button[aria-label*="Carrello"]')) {
+        setTimeout(() => {
+          const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
+          if (drawer && !forceInterval) {
+            startInterval();
+          }
+          forceBlackText();
+          fixTitleLayout();
+          fixImageVisibility();
+          fixSummaryAndCheckout();
+        }, 50);
+        setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 100);
+        setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 200);
+        setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 400);
+        setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 800);
+      }
+    });
+    
+    // Listen for dialog open attribute changes
+    const dialogObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'open') {
+          const drawer = mutation.target;
+          if (drawer.hasAttribute('open')) {
+            // Drawer opened
+            if (!forceInterval) {
+              startInterval();
+            }
+            setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 50);
+            setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 100);
+            setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 200);
+            setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 400);
+            setTimeout(() => { forceBlackText(); fixTitleLayout(); fixImageVisibility(); fixSummaryAndCheckout(); }, 800);
+          } else {
+            // Drawer closed
+            stopInterval();
+          }
+        }
+      });
+    });
+    
+    // Observe all dialogs
+    document.querySelectorAll('dialog').forEach(dialog => {
+      dialogObserver.observe(dialog, {
+        attributes: true,
+        attributeFilter: ['open']
+      });
+    });
+    
+    // Also observe for new dialogs added to DOM
+    const bodyObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) { // Element node
+            if (node.tagName === 'DIALOG' || node.querySelector('dialog')) {
+              const dialogs = node.tagName === 'DIALOG' ? [node] : node.querySelectorAll('dialog');
+              dialogs.forEach(dialog => {
+                dialogObserver.observe(dialog, {
+                  attributes: true,
+                  attributeFilter: ['open']
+                });
+              });
+            }
+          }
+        });
+      });
+    });
+    
+    bodyObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  })();
+</script>

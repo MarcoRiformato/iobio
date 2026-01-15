@@ -1,0 +1,493 @@
+<footer class="custom-footer">
+  <div class="footer-inner">
+    
+    <div class="footer-row-top">
+      <div class="footer-col">
+        <a href="#">Preferiti</a>
+        <a href="#">Novità/Offerte</a>
+        <a href="#">Medicina</a>
+        <a href="#">Alimentazione</a>
+        <a href="#">Igiene</a>
+      </div>
+      <div class="footer-col">
+        <a href="#">Dermocosmesi</a>
+        <a href="#">Casa</a>
+        <a href="#">Sport</a>
+        <a href="#">Animali</a>
+        <a href="#">Altro</a>
+      </div>
+      <div class="footer-col">
+        <a href="#">Videofaq</a>
+        <a href="#">Infoblog</a>
+        <a href="#">Cos'è iobio.it</a>
+        <a href="#">Contatti</a>
+      </div>
+      <div class="footer-col">
+        <a href="#">Lavora con noi</a>
+        <a href="#">Partners</a>
+        <a href="#">Condizioni generali</a>
+        <a href="#">Cookies/Privacy Policy</a>
+      </div>
+      <div class="footer-cart">
+        <a href="{{ routes.cart_url }}" aria-label="Shopping cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="cart-badge">{% if cart.item_count < 10 %}0{% endif %}{{ cart.item_count | default: 0 }}</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-row-bottom">
+      <div class="footer-social">
+        <a href="#"><svg viewBox="0 0 320 512"><path fill="#fff" d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 448 512"><path fill="#fff" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 384 512"><path fill="#fff" d="M204 6.5C101.4 6.5 0 74.9 0 185.6 0 256 39.6 296 63.6 296c9.9 0 15.6-27.6 15.6-35.4 0-9.3-23.7-29.1-23.7-67.8 0-80.4 61.2-137.4 140.4-137.4 68.1 0 118.5 38.7 118.5 109.8 0 53.1-21.3 152.7-90.3 152.7-24.9 0-46.2-18-46.2-43.8 0-37.8 26.4-74.4 26.4-113.4 0-66.2-93.9-54.2-93.9 25.8 0 16.8 2.1 35.4 9.6 50.7-13.8 59.4-42 147.9-42 209.1 0 18.9 2.7 37.5 4.5 56.4 3.4 3.8 1.7 3.4 6.9 1.5 50.4-69 48.6-82.5 71.4-172.8 12.3 23.4 44.1 36 69.3 36 106.2 0 153.9-103.5 153.9-196.8C384 71.3 298.2 6.5 204 6.5z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 448 512"><path fill="#fff" d="M448 209.9a210.1 210.1 0 0 1 -122.8-39.3V349.4A162.6 162.6 0 1 1 185 188.3V278.2a74.6 74.6 0 1 0 52.2 71.2V0l88 0a121.2 121.2 0 0 0 1.9 22.2h0A122.2 122.2 0 0 0 381 102.4a121.4 121.4 0 0 0 67 20.1z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 576 512"><path fill="#fff" d="M549.7 124.1c-6.3-23.7-24.8-42.3-48.3-48.6C458.8 64 288 64 288 64S117.2 64 74.6 75.5c-23.5 6.3-42 24.9-48.3 48.6-11.4 42.9-11.4 132.3-11.4 132.3s0 89.4 11.4 132.3c6.3 23.7 24.8 41.5 48.3 47.8C117.2 448 288 448 288 448s170.8 0 213.4-11.5c23.5-6.3 42-24.2 48.3-47.8 11.4-42.9 11.4-132.3 11.4-132.3s0-89.4-11.4-132.3zm-317.5 213.5V175.2l142.7 81.2-142.7 81.2z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 448 512"><path fill="#fff" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg></a>
+      </div>
+      <div class="footer-newsletter">
+        <span>newsletter:</span>
+        <form class="footer-newsletter-form" onsubmit="event.preventDefault(); return false;">
+          <input type="email" placeholder="scrivi qui la tua e-mail" required>
+          <button type="submit" class="footer-newsletter-submit">Invia</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<style>
+/* Modern Footer Design */
+.custom-footer {
+  background: #004d00;
+  padding: 48px 0 32px;
+  font-family: inherit;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ROW TOP - Modern Grid Layout */
+.footer-row-top {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 40px;
+  margin-bottom: 40px;
+  align-items: start;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+
+.footer-col a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  white-space: nowrap;
+  position: relative;
+}
+
+.footer-col a:not(:last-child)::after {
+  content: '•';
+  position: absolute;
+  right: -12px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 300;
+}
+
+.footer-col a:hover {
+  color: #90EE90;
+  padding-left: 4px;
+}
+
+.footer-col a:hover::after {
+  color: rgba(144, 238, 144, 0.3);
+}
+
+/* CART - Modern Styling */
+.footer-cart {
+  align-self: center;
+}
+
+.footer-cart a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 56px;
+  height: 56px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.footer-cart a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.footer-cart svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  stroke: #ffff00;
+}
+
+.footer-cart .cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff4444;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+  border: 2px solid #004d00;
+}
+
+.footer-cart .cart-badge:empty {
+  display: none;
+}
+
+/* ROW BOTTOM - Modern Layout */
+.footer-row-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 24px;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  padding: 8px;
+}
+
+.footer-social a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.footer-social svg {
+  width: 20px;
+  height: 20px;
+  fill: #ffffff;
+}
+
+/* NEWSLETTER - Modern Design */
+.footer-newsletter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-newsletter span {
+  color: #90EE90;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.footer-newsletter-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer-newsletter input {
+  background: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  width: 280px;
+  color: #333;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-newsletter input:focus {
+  border-color: #90EE90;
+  box-shadow: 0 0 0 3px rgba(144, 238, 144, 0.1);
+}
+
+.footer-newsletter input::placeholder {
+  color: #999;
+  font-style: normal;
+}
+
+.footer-newsletter-submit {
+  background-color: #90EE90;
+  color: #004d00;
+  border: none;
+  padding: 10px 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(144, 238, 144, 0.2);
+}
+
+.footer-newsletter-submit:hover {
+  background-color: #7fdf7f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(144, 238, 144, 0.3);
+}
+
+.footer-newsletter-submit:active {
+  transform: translateY(0);
+}
+
+/* Tablet and below (1024px) */
+@media (max-width: 1024px) {
+  .footer-inner {
+    padding: 0 20px;
+  }
+  
+  .footer-row-top {
+    grid-template-columns: repeat(2, 1fr) auto;
+    gap: 32px;
+  }
+  
+  .footer-row-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  
+  .footer-newsletter {
+    width: 100%;
+  }
+  
+  .footer-newsletter input {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+/* Tablet (768px) */
+@media (max-width: 768px) {
+  .custom-footer {
+    padding: 40px 0 28px;
+  }
+  
+  .footer-inner {
+    padding: 0 16px;
+  }
+  
+  .footer-row-top {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px 24px;
+    margin-bottom: 32px;
+  }
+  
+  .footer-cart {
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-bottom: 8px;
+  }
+  
+  .footer-row-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+  }
+  
+  .footer-social {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .footer-newsletter {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .footer-newsletter span {
+    text-align: center;
+  }
+  
+  .footer-newsletter-form {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .footer-newsletter input {
+    width: 100%;
+  }
+  
+  .footer-newsletter-submit {
+    width: 100%;
+  }
+}
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+  .custom-footer {
+    padding: 32px 0 24px;
+  }
+  
+  .footer-inner {
+    padding: 0 16px;
+  }
+  
+  .footer-row-top {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .footer-col {
+    gap: 8px 16px;
+    justify-content: flex-start;
+  }
+  
+  .footer-col a {
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  
+  .footer-cart {
+    margin-bottom: 0;
+  }
+  
+  .footer-cart a {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .footer-cart svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .footer-row-bottom {
+    gap: 20px;
+    padding-top: 24px;
+  }
+  
+  .footer-social {
+    gap: 10px;
+  }
+  
+  .footer-social a {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+  
+  .footer-social svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .footer-newsletter span {
+    font-size: 0.8125rem;
+  }
+  
+  .footer-newsletter input {
+    font-size: 0.8125rem;
+    padding: 10px 14px;
+  }
+}
+
+/* Small mobile (360px) */
+@media (max-width: 360px) {
+  .footer-inner {
+    padding: 0 12px;
+  }
+  
+  .footer-row-top {
+    gap: 20px;
+  }
+  
+  .footer-col {
+    gap: 6px 12px;
+  }
+  
+  .footer-col a {
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  
+  .footer-social {
+    gap: 8px;
+  }
+  
+  .footer-social a {
+    width: 32px;
+    height: 32px;
+    padding: 5px;
+  }
+  
+  .footer-social svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .footer-cart a {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .footer-cart svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Custom Footer",
+  "tag": "section",
+  "settings": [],
+  "presets": [{ "name": "Custom Footer" }]
+}
+{% endschema %}

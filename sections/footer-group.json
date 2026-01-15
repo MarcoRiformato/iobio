@@ -1,0 +1,55 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "Footer",
+  "sections": {
+    "footer_utilities_jLGE8U": {
+      "type": "footer-utilities",
+      "name": "t:names.utilities",
+      "settings": {
+        "bg_color": "#004d00",
+        "text_color": "#90EE90",
+        "base_font_size": 14,
+        "footer_menu": "footer-menu",
+        "menu_alignment": "flex-start",
+        "text_alignment": "left",
+        "column_gap": 10,
+        "cart_color": "#ffff00",
+        "cart_size": 60,
+        "cart_text_size": 14,
+        "cart_alignment": "flex-end",
+        "vertical_alignment": "flex-start",
+        "padding_top": 40,
+        "padding_bottom": 20,
+        "bottom_margin": 30,
+        "show_social": true,
+        "social_color": "#ffffff",
+        "social_size": 18,
+        "social_gap": 15,
+        "social_facebook": "https://facebook.com/",
+        "social_instagram": "https://facebook.com/",
+        "social_pinterest": "https://facebook.com/",
+        "social_tiktok": "https://facebook.com/",
+        "social_youtube": "https://facebook.com/",
+        "social_linkedin": "",
+        "show_newsletter": true,
+        "newsletter_bg": "#ffffff",
+        "newsletter_text_color": "#000000",
+        "newsletter_label": "newsletter:",
+        "newsletter_placeholder": "scrivi qui la tua e-mail",
+        "show_scroll_arrow": true
+      }
+    }
+  },
+  "order": [
+    "footer_utilities_jLGE8U"
+  ]
+}
