@@ -296,16 +296,6 @@
                         <span class="cart-items__stock-text" style="color: #dc2626 !important;">{{ stock_text }}</span>
                       </div>
                     {%- endif -%}
-                    {%- comment -%} DEBUG LOG: Inventory data {%- endcomment -%}
-                    <script>
-                      // #region agent log
-                      (function(){
-                        const variant = {{ variant | json }};
-                        const itemData = {variantId: '{{ item.variant.id }}', inventoryManagement: '{{ item.variant.inventory_management }}', inventoryQuantity: '{{ item.variant.inventory_quantity }}', inventoryPolicy: '{{ item.variant.inventory_policy }}'};
-                        fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart-products.liquid:347',message:'Stock counter Liquid logic result',data:{showStock:'{{ show_stock }}',stockStatus:'{{ stock_status }}',stockText:'{{ stock_text }}',inventoryManaged:'{{ inventory_managed }}',inventoryQuantity:'{{ inventory_quantity }}',inventoryPolicy:'{{ inventory_policy }}',itemData:itemData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                      })();
-                      // #endregion
-                    </script>
 
                     {% if item.product.vendor and block_settings.vendor %}
                       <p class="cart-items__vendor">

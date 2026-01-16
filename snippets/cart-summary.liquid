@@ -304,13 +304,6 @@
         {{ delivery_label }} 
         <strong style="color: #000000 !important;">{{ delivery_date }}</strong>
       </span>
-      <script>
-        // #region agent log
-        (function(){
-          fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart-summary.liquid:293',message:'Delivery estimate rendered',data:{deliveryDate:'{{ delivery_date }}',deliveryLabel:'{{ delivery_label }}',deliveryDays:'{{ delivery_days }}'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        })();
-        // #endregion
-      </script>
     </div>
     {%- if shop.shipping_policy.body != blank -%}
       <div class="cart__summary-item cart__shipping-info cart-primary-typography">
@@ -357,14 +350,6 @@
           </div>
         {%- endif -%}
       </div>
-      <script>
-        // #region agent log
-        (function(){
-          const paymentTypesCount = {{ shop.enabled_payment_types.size }};
-          fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'cart-summary.liquid:316',message:'Security info rendered',data:{paymentTypesCount:paymentTypesCount,securityText:'{{ security_text }}'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        })();
-        // #endregion
-      </script>
     </div>
   </div>
 </div>

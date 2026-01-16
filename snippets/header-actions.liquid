@@ -943,23 +943,9 @@
       const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
       if (!drawer) return;
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'header-actions.liquid:942',message:'forceBlackText called',data:{drawerFound:!!drawer},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-
       // Set CSS variables on drawer
       drawer.style.setProperty('--color-foreground', '#000000', 'important');
       drawer.style.setProperty('--color-background', '#ffffff', 'important');
-      
-      // #region agent log
-      const stockCounter = drawer.querySelector('.cart-items__stock');
-      const deliveryEstimate = drawer.querySelector('.cart__delivery-estimate');
-      const securityInfo = drawer.querySelector('.cart__security-info');
-      const stockCounterVisible = stockCounter ? window.getComputedStyle(stockCounter).display !== 'none' && window.getComputedStyle(stockCounter).visibility !== 'hidden' : false;
-      const deliveryVisible = deliveryEstimate ? window.getComputedStyle(deliveryEstimate).display !== 'none' && window.getComputedStyle(deliveryEstimate).visibility !== 'hidden' : false;
-      const securityVisible = securityInfo ? window.getComputedStyle(securityInfo).display !== 'none' && window.getComputedStyle(securityInfo).visibility !== 'hidden' : false;
-      fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'header-actions.liquid:950',message:'Elements check in DOM',data:{stockCounterExists:!!stockCounter,stockCounterVisible:stockCounterVisible,deliveryExists:!!deliveryEstimate,deliveryVisible:deliveryVisible,securityExists:!!securityInfo,securityVisible:securityVisible,stockCounterDisplay:stockCounter?window.getComputedStyle(stockCounter).display:'N/A',deliveryDisplay:deliveryEstimate?window.getComputedStyle(deliveryEstimate).display:'N/A',securityDisplay:securityInfo?window.getComputedStyle(securityInfo).display:'N/A'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,C'})}).catch(()=>{});
-      // #endregion
       
       // FORCE ALL TEXT ELEMENTS TO BE BLACK - NO EXCEPTIONS (except checkout buttons)
       const allElements = drawer.querySelectorAll('*');
@@ -1483,16 +1469,6 @@
       if (e.target.closest('button[aria-label*="cart"], button[aria-label*="Carrello"]')) {
         setTimeout(() => {
           const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
-          // #region agent log
-          if (drawer) {
-            const summary = drawer.querySelector('.cart-drawer__summary');
-            const cartSummaryTotals = drawer.querySelector('.cart__summary-totals');
-            const deliveryEstimate = drawer.querySelector('.cart__delivery-estimate');
-            const securityInfo = drawer.querySelector('.cart__security-info');
-            const stockCounter = drawer.querySelector('.cart-items__stock');
-            fetch('http://127.0.0.1:7242/ingest/d1bf4a32-0ed2-43b8-9cf9-9757c642177f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'header-actions.liquid:1468',message:'Cart drawer opened - DOM check',data:{summaryExists:!!summary,cartSummaryTotalsExists:!!cartSummaryTotals,deliveryExists:!!deliveryEstimate,securityExists:!!securityInfo,stockCounterExists:!!stockCounter,summaryInnerHTML:summary?summary.innerHTML.substring(0,200):'N/A'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,C'})}).catch(()=>{});
-          }
-          // #endregion
           if (drawer && !forceInterval) {
             startInterval();
           }

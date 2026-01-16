@@ -323,7 +323,7 @@
   {{ media_slot_2 }}
 
   {% if media_count == 0 %}
-    {{ 'hero-apparel-1' | placeholder_svg_tag: 'hero__image' }}
+    <img src="https://picsum.photos/1920/1080?random=1" alt="Hero image" class="hero__image" loading="eager" width="1920" height="1080">
   {%- endif -%}
 {% endcapture %}
 
@@ -355,7 +355,7 @@
     }}
   {% endif %}
   {% if media_count == 0 %}
-    {{ 'hero-apparel-1' | placeholder_svg_tag: 'hero__image' }}
+    <img src="https://picsum.photos/1920/1080?random=1" alt="Hero image" class="hero__image" loading="eager" width="1920" height="1080">
   {% endif %}
 {% endcapture %}
 
@@ -439,7 +439,7 @@
             }}
         {% endif %}
         {% if media_count == 0 %}
-          {{ 'hero-apparel-1' | placeholder_svg_tag: 'hero__image hero__image--mobile' }}
+          <img src="https://picsum.photos/800/600?random=1" alt="Hero image" class="hero__image hero__image--mobile" loading="eager" width="800" height="600">
         {% endif %}
       {% endif %}
     {% endif %}
