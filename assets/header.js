@@ -19,7 +19,7 @@ import { onDocumentLoaded, changeMetaThemeColor } from '@theme/utilities';
  */
 
 class HeaderComponent extends Component {
-  requiredRefs = ['headerDrawerContainer', 'headerMenu', 'headerRowTop'];
+  requiredRefs = ['headerDrawerContainer', 'headerRowTop'];
 
   /**
    * Width of window when header drawer was hidden
@@ -124,11 +124,11 @@ class HeaderComponent extends Component {
     if (hideMenu) {
       this.refs.headerDrawerContainer.classList.remove('desktop:hidden');
       this.#menuDrawerHiddenWidth = window.innerWidth;
-      this.refs.headerMenu.classList.add('hidden');
+      this.refs.headerMenu?.classList.add('hidden');
     } else {
       this.refs.headerDrawerContainer.classList.add('desktop:hidden');
       this.#menuDrawerHiddenWidth = null;
-      this.refs.headerMenu.classList.remove('hidden');
+      this.refs.headerMenu?.classList.remove('hidden');
     }
   }
 

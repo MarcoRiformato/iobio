@@ -368,5 +368,33 @@
     "security": {
       "secure_checkout": "Checkout sicuro"
     }
+  },
+  "customer": {
+    "account_fallback": "Account",
+    "log_in": "Accedi",
+    "log_out": "Esci",
+    "orders": {
+      "title": "Ordini"
+    },
+    "recover_password": {
+      "title": "Reimposta la password",
+      "subtext": "Ti invieremo un'email per reimpostare la password"
+    },
+    "reset_password": {
+      "title": "Reimposta password",
+      "subtext": "Immetti una nuova password per {{ email }}"
+    },
+    "login_page": {
+      "cancel": "Annulla",
+      "create_account": "Crea account",
+      "email": "Email",
+      "forgot_password": "Password dimenticata?",
+      "guest_continue": "Continua",
+      "guest_title": "Continua come ospite",
+      "password": "Password",
+      "title": "Accedi",
+      "sign_in": "Accedi",
+      "submit": "Invia"
+    }
   }
 }

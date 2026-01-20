@@ -1,0 +1,304 @@
+.header__icon--menu {
+  position: initial;
+}
+
+.header__icon--menu {
+  position: initial;
+}
+
+/* 
+  MANUAL BACKDROP FIX - NO PSEUDO-ELEMENTS 
+  Targeting the actual div added to liquid.
+*/
+.menu-drawer__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 999;
+  cursor: default;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+  /* Default to none, enable when open */
+}
+
+/* When the parent details is open... */
+details[open]>.menu-drawer__backdrop {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  /* STRICTLY ENFORCE CLICKS */
+  display: block !important;
+}
+
+/* Sidebar Container */
+.menu-drawer {
+  position: fixed;
+  transform: translateX(-100%);
+  visibility: hidden;
+  z-index: 1000;
+  /* Above the backdrop (999) */
+  left: 0;
+  top: 0;
+  width: 60vw !important;
+  /* Requested 60% */
+  min-width: unset;
+  max-width: 450px;
+  height: 100dvh;
+  padding: 0;
+  background-color: #004d00 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
+  /* Refined shadow */
+  overflow-x: hidden;
+  filter: drop-shadow(var(--drawer-shadow-horizontal-offset) var(--drawer-shadow-vertical-offset) var(--drawer-shadow-blur-radius) rgba(var(--color-shadow), var(--drawer-shadow-opacity)));
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+}
+
+.js .menu-drawer {
+  height: 100dvh;
+  /* Force full height */
+}
+
+/* Icon Toggling - Force Override */
+.header-drawer-icon--open {
+  display: flex !important;
+}
+
+.header-drawer-icon--close {
+  display: none !important;
+}
+
+details[open] .header-drawer-icon--open {
+  display: none !important;
+}
+
+details[open] .header-drawer-icon--close {
+  display: flex !important;
+}
+
+details[open]>.menu-drawer,
+.js details[open]>.menu-drawer__submenu {
+  transition: transform var(--duration-default) ease, visibility var(--duration-default) ease;
+}
+
+/* Force visibility when open */
+details[open]>.menu-drawer,
+details[open]>.menu-drawer__submenu {
+  transform: translateX(0) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.menu-drawer__navigation {
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.menu-drawer__menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Menu Item Typography Fix */
+.menu-drawer__menu-item {
+  color: #ffffff !important;
+  padding: 1.2rem 2.5rem;
+  /* Reduced padding */
+  text-decoration: none;
+  font-family: var(--font-body-family);
+  /* Reverted to body font for cleanness */
+  font-size: 1.4rem;
+  /* Smaller, cleaner size */
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border-left: 2px solid transparent;
+  /* Original indicator style */
+  transition: all 0.2s ease;
+  font-weight: 500;
+  /* Normal weight */
+  letter-spacing: 0;
+  /* Normal spacing */
+  text-transform: none;
+  /* Normal case */
+}
+
+.menu-drawer__menu-item:hover,
+.menu-drawer__menu-item:focus {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff !important;
+  border-left-color: #ffffff;
+  padding-left: 3rem;
+}
+
+.menu-drawer__menu-item .icon {
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.8;
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}
+
+/* Submenu Styles */
+.menu-drawer__submenu {
+  background-color: #004d00;
+  /* Match parent */
+}
+
+/* Separators & Titles */
+.menu-drawer__separator {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 1rem 2.5rem;
+  border: none;
+}
+
+.menu-drawer__section-title {
+  padding: 0.8rem 2.5rem;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6) !important;
+  /* Subtle title */
+  font-weight: 600;
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  font-family: var(--font-body-family);
+}
+
+/* Close Button in header - Hidden as requested */
+.menu-drawer__close-button {
+  display: none !important;
+}
+
+/* Ensure backdrop works for closing */
+summary.menu-drawer__menu-item {
+  padding-right: 2.5rem;
+}
+
+.menu-drawer__backdrop {
+  /* Redundant with summary::before, ensure it doesn't block interactions */
+  display: none;
+}
+
+/* Account & Utilities at bottom */
+.menu-drawer__utility-links {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2rem 2.5rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.menu-drawer__account-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.menu-drawer__account-link {
+  color: #ffffff !important;
+  text-decoration: none;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 500;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.menu-drawer__account-link:hover {
+  opacity: 1;
+}
+
+.menu-drawer__account-link .icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  opacity: 0.9;
+}
+
+.list-social {
+  display: flex;
+  gap: 2rem;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.list-social__item .icon {
+  color: #ffffff;
+  width: 2.2rem;
+  height: 2.2rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.list-social__item:hover .icon {
+  transform: scale(1.1);
+  color: #90EE90;
+}
+
+/* Ensure all links inside drawer are forced white */
+.menu-drawer a,
+.menu-drawer summary {
+  color: #ffffff !important;
+}
+
+/* Scrollbar styling */
+.menu-drawer__navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-drawer__navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-drawer__navigation::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.menu-drawer__account shop-user-avatar {
+  --shop-avatar-size: 2.4rem;
+  margin-right: 0.55rem;
+}
+
+.menu-drawer__account:hover account-icon>.svg-wrapper {
+  transform: scale(1.07);
+}
+
+.menu-drawer .list-social {
+  justify-content: flex-start;
+  margin-left: -1.25rem;
+}
+
+.menu-drawer .list-social:empty {
+  display: none;
+}
+
+.menu-drawer .list-social__link {
+  padding: 1.1rem 1.1rem;
+}
+
+@media screen and (max-width: 749px) {
+  .menu-drawer.country-selector-open {
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}

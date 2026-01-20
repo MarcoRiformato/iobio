@@ -1148,7 +1148,6 @@
       allAdditionalCheckout.forEach(el => el.remove());
       
       // Ensure cart__ctas only has one button - VERY AGGRESSIVE
-      const cartCtas = drawer.querySelector('.cart__ctas');
       if (cartCtas) {
         const buttons = cartCtas.querySelectorAll('button');
         if (buttons.length > 1) {

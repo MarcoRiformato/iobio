@@ -113,5 +113,30 @@
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
     {% endif %}
+    <script>
+      // Emergency Fallback for Mobile Menu
+      document.addEventListener('DOMContentLoaded', function() {
+        const burger = document.querySelector('summary.header__icon--menu');
+        const details = document.querySelector('#Details-menu-drawer-container');
+        
+        if (burger && details) {
+          burger.addEventListener('click', function(e) {
+            // Wait a tick to see if the theme's default JS handled it
+            setTimeout(() => {
+              if (!details.hasAttribute('open')) {
+                console.warn('Emergency Fallback: Forcing menu open');
+                details.setAttribute('open', '');
+                details.classList.add('menu-opening');
+                const drawer = details.querySelector('.menu-drawer');
+                if (drawer) {
+                  drawer.style.transform = 'translateX(0)';
+                  drawer.style.visibility = 'visible';
+                }
+              }
+            }, 50);
+          });
+        }
+      });
+    </script>
   </body>
 </html>

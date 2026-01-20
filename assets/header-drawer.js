@@ -1,181 +1,246 @@
-import { Component } from '@theme/component';
-import { trapFocus, removeTrapFocus } from '@theme/focus';
-import { onAnimationEnd, removeWillChangeOnAnimationEnd } from '@theme/utilities';
 
-/**
- * A custom element that manages the main menu drawer.
- *
- * @typedef {object} Refs
- * @property {HTMLDetailsElement} details - The details element.
- *
- * @extends {Component<Refs>}
- */
-class HeaderDrawer extends Component {
-  requiredRefs = ['details'];
+class MenuDrawer extends HTMLElement {
+  constructor() {
+    super();
 
-  connectedCallback() {
-    super.connectedCallback();
+    this.mainDetailsToggle = this.querySelector('details');
 
-    this.addEventListener('keyup', this.#onKeyUp);
-    this.#setupAnimatedElementListeners();
+    this.addEventListener('keyup', this.onKeyUp.bind(this));
+    this.addEventListener('focusout', this.onFocusOut.bind(this));
+    this.bindEvents();
   }
 
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeEventListener('keyup', this.#onKeyUp);
+  bindEvents() {
+    this.querySelectorAll('summary').forEach((summary) =>
+      summary.addEventListener('click', this.onSummaryClick.bind(this))
+    );
+    this.querySelectorAll(
+      'button:not(.localization-selector):not(.country-selector__close-button):not(.country-filter__reset-button)'
+    ).forEach((button) => button.addEventListener('click', this.onCloseButtonClick.bind(this)));
+
+    // Manual Backdrop Click Listener
+    const backdrop = this.querySelector('.menu-drawer__backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent accidental clicks passing through
+        this.closeMenuDrawer(event, this.mainDetailsToggle.querySelector('summary'));
+      });
+    }
   }
 
-  /**
-   * Close the main menu drawer when the Escape key is pressed
-   * @param {KeyboardEvent} event
-   */
-  #onKeyUp = (event) => {
-    if (event.key !== 'Escape') return;
+  onKeyUp(event) {
+    if (event.code.toUpperCase() !== 'ESCAPE') return;
 
-    this.#close(this.#getDetailsElement(event));
+    const openDetailsElement = event.target.closest('details[open]');
+    if (!openDetailsElement) return;
+
+    openDetailsElement === this.mainDetailsToggle
+      ? this.closeMenuDrawer(event, this.mainDetailsToggle.querySelector('summary'))
+      : this.closeSubmenu(openDetailsElement);
+  }
+
+  onSummaryClick(event) {
+    console.log('MenuDrawer: onSummaryClick triggered');
+    const summaryElement = event.currentTarget;
+    const detailsElement = summaryElement.parentNode;
+    const parentMenuElement = detailsElement.closest('.has-submenu');
+    const isOpen = detailsElement.hasAttribute('open');
+    console.log('MenuDrawer: details open status:', isOpen);
+    console.log('MenuDrawer: mainDetailsToggle:', this.mainDetailsToggle);
+    console.log('MenuDrawer: clicked details:', detailsElement);
+    console.log('MenuDrawer: match?', this.mainDetailsToggle === detailsElement);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function addTrapFocus() {
+      trapFocus(summaryElement.nextElementSibling, detailsElement.querySelector('button'));
+      summaryElement.nextElementSibling.removeEventListener('transitionend', addTrapFocus);
+    }
+
+    if (detailsElement === this.mainDetailsToggle) {
+      if (isOpen) event.preventDefault();
+      isOpen ? this.closeMenuDrawer(event, summaryElement) : this.openMenuDrawer(summaryElement);
+
+      if (window.matchMedia('(max-width: 990px)')) {
+        document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
+      }
+    } else {
+      setTimeout(() => {
+        detailsElement.classList.add('menu-opening');
+        summaryElement.setAttribute('aria-expanded', true);
+        parentMenuElement && parentMenuElement.classList.add('submenu-open');
+        !reducedMotion || reducedMotion.matches
+          ? addTrapFocus()
+          : summaryElement.nextElementSibling.addEventListener('transitionend', addTrapFocus);
+      }, 100);
+    }
+  }
+
+  openMenuDrawer(summaryElement) {
+    console.log('HeaderDrawer: openMenuDrawer called');
+    setTimeout(() => {
+      this.mainDetailsToggle.classList.add('menu-opening');
+    });
+    summaryElement.setAttribute('aria-expanded', true);
+    trapFocus(this.mainDetailsToggle, summaryElement);
+    document.body.classList.add(`overflow-hidden-${this.dataset.breakpoint}`);
+  }
+
+  closeMenuDrawer(event, elementToFocus = false) {
+    if (event === undefined) return;
+
+    this.mainDetailsToggle.classList.remove('menu-opening');
+    this.mainDetailsToggle.querySelectorAll('details').forEach((details) => {
+      details.removeAttribute('open');
+      details.classList.remove('menu-opening');
+    });
+    this.mainDetailsToggle.querySelectorAll('.submenu-open').forEach((submenu) => {
+      submenu.classList.remove('submenu-open');
+    });
+    document.body.classList.remove(`overflow-hidden-${this.dataset.breakpoint}`);
+    removeTrapFocus(elementToFocus);
+    this.closeAnimation(this.mainDetailsToggle);
+
+    if (event instanceof KeyboardEvent) elementToFocus?.setAttribute('aria-expanded', false);
+  }
+
+  onFocusOut() {
+    setTimeout(() => {
+      if (this.mainDetailsToggle.hasAttribute('open') && !this.mainDetailsToggle.contains(document.activeElement))
+        this.closeMenuDrawer();
+    });
+  }
+
+  onCloseButtonClick(event) {
+    const detailsElement = event.currentTarget.closest('details');
+    this.closeSubmenu(detailsElement);
+  }
+
+  closeSubmenu(detailsElement) {
+    const parentMenuElement = detailsElement.closest('.submenu-open');
+    parentMenuElement && parentMenuElement.classList.remove('submenu-open');
+    detailsElement.classList.remove('menu-opening');
+    detailsElement.querySelector('summary').setAttribute('aria-expanded', false);
+    removeTrapFocus(detailsElement.querySelector('summary'));
+    this.closeAnimation(detailsElement);
+  }
+
+  closeAnimation(detailsElement) {
+    let animationStart;
+
+    const handleAnimation = (time) => {
+      if (animationStart === undefined) {
+        animationStart = time;
+      }
+
+      const elapsedTime = time - animationStart;
+
+      if (elapsedTime < 400) {
+        window.requestAnimationFrame(handleAnimation);
+      } else {
+        detailsElement.removeAttribute('open');
+        if (detailsElement.closest('details[open]')) {
+          trapFocus(detailsElement.closest('details[open]'), detailsElement.querySelector('summary'));
+        }
+      }
+    };
+
+    window.requestAnimationFrame(handleAnimation);
+  }
+}
+
+customElements.define('menu-drawer', MenuDrawer);
+
+class HeaderDrawer extends MenuDrawer {
+  constructor() {
+    super();
+  }
+
+  openMenuDrawer(summaryElement) {
+    this.header = this.header || document.querySelector('.section-header') || document.querySelector('.header') || document.querySelector('header-component');
+    this.borderOffset =
+      this.borderOffset || (this.closest('.header-wrapper') && this.closest('.header-wrapper').classList.contains('header-wrapper--border-bottom') ? 1 : 0);
+    const headerBottom = this.header ? this.header.getBoundingClientRect().bottom : 0;
+    document.documentElement.style.setProperty(
+      '--header-bottom-position',
+      `${parseInt(headerBottom - this.borderOffset)}px`
+    );
+    this.header?.classList.add('menu-open');
+    this.mainDetailsToggle.setAttribute('open', '');
+
+    setTimeout(() => {
+      this.mainDetailsToggle.classList.add('menu-opening');
+    });
+
+    summaryElement.setAttribute('aria-expanded', true);
+    window.addEventListener('resize', this.onResize);
+    trapFocus(this.mainDetailsToggle, summaryElement);
+    document.body.classList.add(`overflow-hidden-${this.dataset.breakpoint}`);
+  }
+
+  closeMenuDrawer(event, elementToFocus) {
+    if (!elementToFocus) return;
+    super.closeMenuDrawer(event, elementToFocus);
+    this.header.classList.remove('menu-open');
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  onResize = () => {
+    this.header &&
+      document.documentElement.style.setProperty(
+        '--header-bottom-position',
+        `${parseInt(this.header.getBoundingClientRect().bottom - this.borderOffset)}px`
+      );
+    document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
+  };
+}
+
+customElements.define('header-drawer', HeaderDrawer);
+
+function trapFocus(element, elementToFocus = element) {
+  const focusableElements = Array.from(
+    element.querySelectorAll(
+      'summary, a[href], button:enabled, [tabindex]:not([tabindex^="-"]), [draggable], area, input:not([type=hidden]):enabled, select:enabled, textarea:enabled, object, iframe'
+    )
+  );
+  const firstFocusableElement = focusableElements[0];
+  const lastFocusableElement = focusableElements[focusableElements.length - 1];
+  const trapFocusHandler = (event) => {
+    if (event.code.toUpperCase() !== 'TAB') return;
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusableElement && event.target === lastFocusableElement) {
+        // do nothing
+      } else if (document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus();
+        event.preventDefault();
+      }
+    } else {
+      if (document.activeElement === lastFocusableElement && event.target === firstFocusableElement) {
+        // do nothing
+      } else if (document.activeElement === lastFocusableElement) {
+        firstFocusableElement.focus();
+        event.preventDefault();
+      }
+    }
   };
 
-  /**
-   * @returns {boolean} Whether the main menu drawer is open
-   */
-  get isOpen() {
-    return this.refs.details.hasAttribute('open');
+  element.addEventListener('keydown', trapFocusHandler);
+
+  // remove previous event listener
+  if (window.trapFocusHandler) {
+    element.removeEventListener('keydown', window.trapFocusHandler);
   }
+  window.trapFocusHandler = trapFocusHandler;
 
-  /**
-   * Get the closest details element to the event target
-   * @param {Event | undefined} event
-   * @returns {HTMLDetailsElement}
-   */
-  #getDetailsElement(event) {
-    if (!(event?.target instanceof Element)) return this.refs.details;
-
-    return event.target.closest('details') ?? this.refs.details;
-  }
-
-  /**
-   * Toggle the main menu drawer
-   */
-  toggle() {
-    return this.isOpen ? this.close() : this.open();
-  }
-
-  /**
-   * Open the closest drawer or the main menu drawer
-   * @param {Event} [event]
-   */
-  open(event) {
-    const details = this.#getDetailsElement(event);
-    const summary = details.querySelector('summary');
-
-    if (!summary) return;
-
-    summary.setAttribute('aria-expanded', 'true');
-
-    this.preventInitialAccordionAnimations(details);
-    requestAnimationFrame(() => {
-      details.classList.add('menu-open');
-
-      // Wait for the drawer animation to complete before trapping focus
-      const drawer = details.querySelector('.menu-drawer, .menu-drawer__submenu');
-      onAnimationEnd(drawer || details, () => trapFocus(details), { subtree: false });
-    });
-  }
-
-  /**
-   * Go back or close the main menu drawer
-   * @param {Event} [event]
-   */
-  back(event) {
-    this.#close(this.#getDetailsElement(event));
-  }
-
-  /**
-   * Close the main menu drawer
-   */
-  close() {
-    this.#close(this.refs.details);
-  }
-
-  /**
-   * Close the closest menu or submenu that is open
-   *
-   * @param {HTMLDetailsElement} details
-   */
-  #close(details) {
-    const summary = details.querySelector('summary');
-
-    if (!summary) return;
-
-    summary.setAttribute('aria-expanded', 'false');
-    details.classList.remove('menu-open');
-
-    // Wait for the .menu-drawer element's transition, not the entire details subtree
-    // This avoids waiting for child accordion/resource-card animations which can cause issues on Firefox
-    const drawer = details.querySelector('.menu-drawer, .menu-drawer__submenu');
-
-    onAnimationEnd(
-      drawer || details,
-      () => {
-        reset(details);
-        if (details === this.refs.details) {
-          removeTrapFocus();
-          const openDetails = this.querySelectorAll('details[open]:not(accordion-custom > details)');
-          openDetails.forEach(reset);
-        } else {
-          trapFocus(this.refs.details);
-        }
-      },
-      { subtree: false }
-    );
-  }
-
-  /**
-   * Attach animationend event listeners to all animated elements to remove will-change after animation
-   * to remove the stacking context and allow submenus to be positioned correctly
-   */
-  #setupAnimatedElementListeners() {
-    const allAnimated = this.querySelectorAll('.menu-drawer__animated-element');
-    allAnimated.forEach((element) => {
-      element.addEventListener('animationend', removeWillChangeOnAnimationEnd);
-    });
-  }
-
-  /**
-   * Temporarily disables accordion animations to prevent unwanted transitions when the drawer opens.
-   * Adds a no-animation class to accordion content elements, then removes it after 100ms to
-   * re-enable animations for user interactions.
-   * @param {HTMLDetailsElement} details - The details element containing the accordions
-   */
-  preventInitialAccordionAnimations(details) {
-    const content = details.querySelectorAll('accordion-custom .details-content');
-
-    content.forEach((element) => {
-      if (element instanceof HTMLElement) {
-        element.classList.add('details-content--no-animation');
-      }
-    });
-    setTimeout(() => {
-      content.forEach((element) => {
-        if (element instanceof HTMLElement) {
-          element.classList.remove('details-content--no-animation');
-        }
-      });
-    }, 100);
-  }
+  if (elementToFocus) elementToFocus.focus();
 }
 
-if (!customElements.get('header-drawer')) {
-  customElements.define('header-drawer', HeaderDrawer);
-}
+function removeTrapFocus(elementToFocus = null) {
+  document.removeEventListener('focusin', (event) => {
+    if (event.target !== undefined && event.target !== null && !elementToFocus.contains(event.target)) {
+      elementToFocus.focus();
+    }
+  });
 
-/**
- * Reset an open details element to its original state
- *
- * @param {HTMLDetailsElement} element
- */
-function reset(element) {
-  element.classList.remove('menu-open');
-  element.removeAttribute('open');
-  element.querySelector('summary')?.setAttribute('aria-expanded', 'false');
+  if (elementToFocus) elementToFocus.focus();
 }
