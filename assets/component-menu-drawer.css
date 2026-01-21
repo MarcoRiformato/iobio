@@ -1,13 +1,32 @@
 .header__icon--menu {
   position: initial;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  padding: 8px;
+  margin: -8px;
 }
 
-.header__icon--menu {
-  position: initial;
+.header__icon--menu:hover {
+  background: rgba(144, 238, 144, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform: scale(1.05);
 }
 
-/* 
-  MANUAL BACKDROP FIX - NO PSEUDO-ELEMENTS 
+.header__icon--menu:active {
+  transform: scale(0.95);
+}
+
+.header__icon--menu .svg-wrapper {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header__icon--menu:hover .svg-wrapper {
+  transform: rotate(5deg);
+}
+
+/*
+  MANUAL BACKDROP FIX - NO PSEUDO-ELEMENTS
   Targeting the actual div added to liquid.
 */
 .menu-drawer__backdrop {
@@ -16,13 +35,12 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.4);
   opacity: 0;
   visibility: hidden;
   z-index: 999;
   cursor: default;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   pointer-events: none;
   /* Default to none, enable when open */
 }
@@ -51,15 +69,22 @@ details[open]>.menu-drawer__backdrop {
   max-width: 450px;
   height: 100dvh;
   padding: 0;
-  background-color: #004d00 !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
-  /* Refined shadow */
+  background: linear-gradient(135deg,
+    rgba(0, 77, 0, 0.95) 0%,
+    rgba(0, 102, 0, 0.95) 50%,
+    rgba(0, 128, 0, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.4),
+    0 0 80px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   overflow-x: hidden;
-  filter: drop-shadow(var(--drawer-shadow-horizontal-offset) var(--drawer-shadow-vertical-offset) var(--drawer-shadow-blur-radius) rgba(var(--color-shadow), var(--drawer-shadow-opacity)));
   display: flex;
   flex-direction: column;
   color: #ffffff;
+  border-radius: 0 20px 20px 0;
 }
 
 .js .menu-drawer {
@@ -98,11 +123,27 @@ details[open]>.menu-drawer__submenu {
 }
 
 .menu-drawer__navigation {
-  padding: 2rem 0;
+  padding: 3rem 0 2rem;
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  position: relative;
+}
+
+.menu-drawer__navigation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.2) 80%,
+    transparent 100%);
 }
 
 .menu-drawer__menu {
@@ -113,43 +154,112 @@ details[open]>.menu-drawer__submenu {
 
 /* Menu Item Typography Fix */
 .menu-drawer__menu-item {
-  color: #ffffff !important;
-  padding: 1.2rem 2.5rem;
-  /* Reduced padding */
+  color: rgba(255, 255, 255, 0.95) !important;
+  padding: 1.4rem 2.5rem;
   text-decoration: none;
   font-family: var(--font-body-family);
-  /* Reverted to body font for cleanness */
-  font-size: 1.4rem;
-  /* Smaller, cleaner size */
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
   display: flex !important;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 1rem;
   width: 100%;
-  border-left: 2px solid transparent;
-  /* Original indicator style */
-  transition: all 0.2s ease;
-  font-weight: 500;
-  /* Normal weight */
-  letter-spacing: 0;
-  /* Normal spacing */
-  text-transform: none;
-  /* Normal case */
+  position: relative;
+  border-radius: 0 12px 12px 0;
+  margin: 0.2rem 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.menu-drawer__menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(135deg,
+    rgba(144, 238, 144, 0.4) 0%,
+    rgba(50, 205, 50, 0.4) 100%);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0 8px 8px 0;
 }
 
 .menu-drawer__menu-item:hover,
 .menu-drawer__menu-item:focus {
-  background-color: rgba(255, 255, 255, 0.05);
   color: #ffffff !important;
-  border-left-color: #ffffff;
-  padding-left: 3rem;
+  background: rgba(144, 238, 144, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transform: translateX(8px);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(144, 238, 144, 0.2);
 }
 
-.menu-drawer__menu-item .icon {
-  width: 1rem;
-  height: 1rem;
-  opacity: 0.8;
-  fill: currentColor;
-  transition: transform 0.3s ease;
+.menu-drawer__menu-item:hover::before,
+.menu-drawer__menu-item:focus::before {
+  width: 4px;
+}
+
+/* Enhanced opening animation for the drawer itself */
+.menu-drawer {
+  transform: translateX(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+details[open] .menu-drawer {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.menu-drawer__menu-item svg.menu-drawer__icon {
+  width: 20px;
+  height: 20px;
+  opacity: 1;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.menu-drawer__menu-item:hover svg,
+.menu-drawer__menu-item:focus svg {
+  opacity: 1;
+  transform: scale(1.1) translateX(2px);
+  stroke-width: 2.2;
+}
+
+.menu-drawer__menu-item:hover svg path,
+.menu-drawer__menu-item:focus svg path {
+  stroke: #ffffff;
+}
+
+/* Add some subtle glow effects */
+.menu-drawer__menu-item:hover {
+  box-shadow:
+    0 8px 32px rgba(59, 130, 246, 0.15),
+    0 4px 16px rgba(147, 51, 234, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Add active state */
+.menu-drawer__menu-item:active {
+  transform: translateX(6px) scale(0.98);
+  transition: all 0.1s ease;
 }
 
 /* Submenu Styles */
@@ -161,22 +271,43 @@ details[open]>.menu-drawer__submenu {
 /* Separators & Titles */
 .menu-drawer__separator {
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
-  margin: 1rem 2.5rem;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 100%);
+  margin: 1.5rem 2.5rem 1rem;
   border: none;
+  position: relative;
+}
+
+.menu-drawer__separator::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.5) 30%,
+    rgba(147, 51, 234, 0.7) 50%,
+    rgba(59, 130, 246, 0.5) 70%,
+    transparent 100%);
 }
 
 .menu-drawer__section-title {
-  padding: 0.8rem 2.5rem;
-  font-size: 1.1rem;
+  padding: 1rem 2.5rem 0.5rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.6) !important;
-  /* Subtle title */
-  font-weight: 600;
-  opacity: 0.7;
-  margin-top: 0.5rem;
+  letter-spacing: 0.15em;
+  color: rgba(144, 238, 144, 0.8) !important;
+  font-weight: 700;
+  margin-top: 1rem;
   font-family: var(--font-body-family);
+  position: relative;
 }
 
 /* Close Button in header - Hidden as requested */
@@ -261,16 +392,28 @@ summary.menu-drawer__menu-item {
 
 /* Scrollbar styling */
 .menu-drawer__navigation::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .menu-drawer__navigation::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
 }
 
 .menu-drawer__navigation::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.3) 100%);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.menu-drawer__navigation::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg,
+    rgba(59, 130, 246, 0.4) 0%,
+    rgba(147, 51, 234, 0.6) 50%,
+    rgba(59, 130, 246, 0.4) 100%);
 }
 
 .menu-drawer__account shop-user-avatar {

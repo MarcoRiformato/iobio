@@ -167,10 +167,6 @@ class HeaderDrawer extends MenuDrawer {
     this.header?.classList.add('menu-open');
     this.mainDetailsToggle.setAttribute('open', '');
 
-    setTimeout(() => {
-      this.mainDetailsToggle.classList.add('menu-opening');
-    });
-
     summaryElement.setAttribute('aria-expanded', true);
     window.addEventListener('resize', this.onResize);
     trapFocus(this.mainDetailsToggle, summaryElement);
@@ -179,9 +175,13 @@ class HeaderDrawer extends MenuDrawer {
 
   closeMenuDrawer(event, elementToFocus) {
     if (!elementToFocus) return;
-    super.closeMenuDrawer(event, elementToFocus);
-    this.header.classList.remove('menu-open');
-    window.removeEventListener('resize', this.onResize);
+
+    // Let the CSS animation handle the closing, then remove the open attribute
+    setTimeout(() => {
+      super.closeMenuDrawer(event, elementToFocus);
+      this.header.classList.remove('menu-open');
+      window.removeEventListener('resize', this.onResize);
+    }, 350); // Wait for CSS animation to complete
   }
 
   onResize = () => {
