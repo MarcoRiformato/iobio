@@ -20,7 +20,7 @@
     >
       {% render 'header-drawer',
         class: 'header__drawer--mobile',
-        linklist: block_settings.menu,
+        linklist: section.settings.menu | default: block_settings.menu,
         data_header_drawer_type: 'mobile-drawer',
         block: block,
         section: section

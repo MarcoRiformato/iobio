@@ -209,7 +209,7 @@
       "name": "t:names.collections_grid",
       "settings": {
         "collection_list": [
-          "novita",
+          "novita-offerte",
           "alimentazione",
           "medicina-cura",
           "igiene",

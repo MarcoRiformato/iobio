@@ -2,33 +2,42 @@
   <div class="footer-inner">
     
     <div class="footer-row-top">
-      <div class="footer-col">
-
-        <a href="#">Novità/Offerte</a>
-        <a href="#">Medicina</a>
-        <a href="#">Alimentazione</a>
-        <a href="#">Igiene</a>
-      </div>
-      <div class="footer-col">
-        <a href="#">Dermocosmesi</a>
-        <a href="#">Casa</a>
-        <a href="#">Sport</a>
-        <a href="#">Animali</a>
-        <a href="#">Altro</a>
-      </div>
-      <div class="footer-col">
-        <a href="#">Videofaq</a>
-        <a href="#">Infoblog</a>
-        <a href="#">Cos'è iobio.it</a>
-        <a href="#">Contatti</a>
-      </div>
-      <div class="footer-col">
-        <a href="#">Lavora con noi</a>
-        <a href="#">Partners</a>
-        <a href="#">Condizioni generali</a>
-        <a href="#">Cookies/Privacy Policy</a>
-      </div>
-
+      {%- if section.settings.menu != blank -%}
+        {%- assign menu_handle = section.settings.menu.handle | default: section.settings.menu -%}
+        {%- if menu_handle == 'footer' -%}{%- assign menu_handle = 'footer-menu' -%}{%- endif -%}
+        {%- for link in linklists[menu_handle].links -%}
+          <div class="footer-col">
+            <a href="{{ link.url }}" {% if link.active %}class="active"{% endif %}>
+              {%- comment -%} Determine Icon based on Handle {%- endcomment -%}
+              {%- assign icon_name = 'ph-circle' -%}
+              {%- assign handle = link.handle | handleize -%}
+              {%- case handle -%}
+                {%- when 'search' -%}{%- assign icon_name = 'ph-magnifying-glass' -%}
+                {%- when 'catalogo' -%}{%- assign icon_name = 'ph-grid-four' -%}
+                {%- when 'all-collections' -%}{%- assign icon_name = 'ph-grid-four' -%}
+                {%- when 'alimentazione' -%}{%- assign icon_name = 'ph-carrot' -%}
+                {%- when 'animali' -%}{%- assign icon_name = 'ph-paw-print' -%}
+                {%- when 'casa' -%}{%- assign icon_name = 'ph-house' -%}
+                {%- when 'orders' -%}{%- assign icon_name = 'ph-package' -%}
+                {%- when 'profile' -%}{%- assign icon_name = 'ph-user' -%}
+              {%- endcase -%}
+              {%- if icon_name != 'ph-circle' -%}<i class="ph {{ icon_name }}" style="margin-right: 6px;"></i>{%- endif -%}
+              {{ link.title }}
+            </a>
+            {%- if link.links != blank -%}
+              {%- for childlink in link.links -%}
+                <a href="{{ childlink.url }}" {% if childlink.active %}class="active"{% endif %}>{{ childlink.title }}</a>
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {% comment %} Fallback/Placeholder if no menu selected {% endcomment %}
+        <div class="footer-col"><a href="#">Menu Item 1</a></div>
+        <div class="footer-col"><a href="#">Menu Item 2</a></div>
+        <div class="footer-col"><a href="#">Menu Item 3</a></div>
+        <div class="footer-col"><a href="#">Menu Item 4</a></div>
+      {%- endif -%}
     </div>
 
     <div class="footer-row-bottom">
@@ -63,7 +72,7 @@
 /* ROW TOP - Modern Grid Layout */
 .footer-row-top {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) auto;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Auto-fit for dynamic columns */
   gap: 40px;
   margin-bottom: 40px;
   align-items: start;
@@ -71,11 +80,9 @@
 
 .footer-col {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px 16px;
+  flex-direction: column; /* Stack vertically for standard lists */
+  gap: 8px;
   align-items: flex-start;
-  align-content: flex-start;
 }
 
 .footer-col a {
@@ -84,22 +91,19 @@
   font-size: 0.875rem;
   line-height: 1.6;
   transition: all 0.2s ease;
-  padding: 4px 8px;
-  white-space: nowrap;
+  padding: 2px 0; /* Adjusted for list view */
+  white-space: normal; /* Allow wrapping */
   position: relative;
 }
 
 .footer-col a:not(:last-child)::after {
-  content: '•';
-  position: absolute;
-  right: -12px;
-  color: rgba(255, 255, 255, 0.3);
-  font-weight: 300;
+  content: ''; /* Removed bullet point for list view */
 }
 
 .footer-col a:hover {
-  color: #90EE90;
-  padding-left: 4px;
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .footer-col a:hover::after {
@@ -160,7 +164,7 @@
 /* ROW BOTTOM - Modern Layout */
 .footer-row-bottom {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* Align newsletter to right */
   align-items: center;
   padding-top: 32px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -200,36 +204,33 @@
 .footer-newsletter {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .footer-newsletter span {
-  color: #90EE90;
-  font-size: 0.875rem;
+  color: #fff;
+  font-size: 0.9rem;
   font-weight: 500;
+  text-transform: lowercase;
   white-space: nowrap;
 }
 
 .footer-newsletter-form {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 40px;
+  min-width: 300px;
 }
 
 .footer-newsletter input {
-  background: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  padding: 10px 16px;
-  font-size: 0.875rem;
-  width: 280px;
-  color: #333;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  outline: none;
+  border: none;
+  padding: 0 16px;
   flex: 1;
-  min-width: 200px;
+  font-size: 0.9rem;
+  outline: none;
+  color: #333;
 }
 
 .footer-newsletter input:focus {
@@ -465,6 +466,60 @@
     height: 20px;
   }
 }
+
+/* Tablet Responsive Styles */
+@media screen and (max-width: 1024px) {
+  .footer-row-top {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet */
+    gap: 30px;
+  }
+  
+  .custom-footer {
+    padding: 32px 0 24px;
+  }
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 480px) {
+  .footer-row-top {
+    grid-template-columns: 1fr; /* 1 column on mobile */
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .footer-col {
+    flex-direction: column; /* Stack links vertically on mobile */
+    align-items: center; /* Center align links */
+    gap: 12px;
+    text-align: center;
+  }
+
+  .footer-col a {
+    padding: 2px 0;
+    width: 100%;
+    display: block;
+  }
+
+  /* Remove separators on mobile since distinct rows */
+  .footer-col a:not(:last-child)::after {
+    display: none;
+  }
+  
+  .footer-newsletter {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .footer-newsletter-form {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .footer-newsletter span {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+}
 </style>
 
 {% schema %}
@@ -518,6 +573,16 @@
       "label": "WhatsApp URL",
       "info": "Format: https://wa.me/393401234567",
       "default": "https://wa.me/393401234567"
+    },
+    {
+      "type": "header",
+      "content": "Menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Footer Menu",
+      "default": "footer"
     }
   ],
   "presets": [{ "name": "Custom Footer" }]
