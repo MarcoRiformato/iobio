@@ -352,120 +352,7 @@
   }
 }
 
-/* Mobile (480px) */
-@media (max-width: 480px) {
-  .custom-footer {
-    padding: 32px 0 24px;
-  }
-  
-  .footer-inner {
-    padding: 0 16px;
-  }
-  
-  .footer-row-top {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-bottom: 24px;
-  }
-  
-  .footer-col {
-    gap: 8px 16px;
-    justify-content: flex-start;
-  }
-  
-  .footer-col a {
-    font-size: 0.8125rem;
-    white-space: nowrap;
-  }
-  
-  .footer-cart {
-    margin-bottom: 0;
-  }
-  
-  .footer-cart a {
-    width: 52px;
-    height: 52px;
-  }
-  
-  .footer-cart svg {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .footer-row-bottom {
-    gap: 20px;
-    padding-top: 24px;
-  }
-  
-  .footer-social {
-    gap: 10px;
-  }
-  
-  .footer-social a {
-    width: 36px;
-    height: 36px;
-    padding: 6px;
-  }
-  
-  .footer-social svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .footer-newsletter span {
-    font-size: 0.8125rem;
-  }
-  
-  .footer-newsletter input {
-    font-size: 0.8125rem;
-    padding: 10px 14px;
-  }
-}
 
-/* Small mobile (360px) */
-@media (max-width: 360px) {
-  .footer-inner {
-    padding: 0 12px;
-  }
-  
-  .footer-row-top {
-    gap: 20px;
-  }
-  
-  .footer-col {
-    gap: 6px 12px;
-  }
-  
-  .footer-col a {
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
-  
-  .footer-social {
-    gap: 8px;
-  }
-  
-  .footer-social a {
-    width: 32px;
-    height: 32px;
-    padding: 5px;
-  }
-  
-  .footer-social svg {
-    width: 16px;
-    height: 16px;
-  }
-  
-  .footer-cart a {
-    width: 48px;
-    height: 48px;
-  }
-  
-  .footer-cart svg {
-    width: 20px;
-    height: 20px;
-  }
-}
 
 /* Tablet Responsive Styles */
 @media screen and (max-width: 1024px) {
@@ -479,19 +366,22 @@
   }
 }
 
-/* Mobile Responsive Styles */
-@media screen and (max-width: 480px) {
+/* Mobile/Tablet Responsive Styles (Under 768px) */
+@media screen and (max-width: 768px) {
   .footer-row-top {
-    grid-template-columns: 1fr; /* 1 column on mobile */
-    gap: 24px;
+    display: grid;
+    grid-template-columns: 1fr; /* 1 column */
+    gap: 20px; /* spacing between columns */
     margin-bottom: 32px;
   }
 
   .footer-col {
-    flex-direction: column; /* Stack links vertically on mobile */
-    align-items: center; /* Center align links */
-    gap: 12px;
+    width: 100%;
+    margin-bottom: 20px; /* explicit margin as requested */
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    gap: 12px;
   }
 
   .footer-col a {
@@ -500,7 +390,7 @@
     display: block;
   }
 
-  /* Remove separators on mobile since distinct rows */
+  /* Remove separators on mobile */
   .footer-col a:not(:last-child)::after {
     display: none;
   }
