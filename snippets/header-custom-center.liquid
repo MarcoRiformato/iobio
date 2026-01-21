@@ -2,6 +2,7 @@
   Custom header center column with login and register buttons
 {% endcomment %}
 <div class="header-custom-center">
+  {% comment %}
   {% if shop.customer_accounts_enabled %}
     <a href="{{ routes.account_login_url }}" class="header-login-button" style="
       background-color: #90EE90;
@@ -30,4 +31,5 @@
       registrati
     </a>
   {% endif %}
+  {% endcomment %}
 </div>

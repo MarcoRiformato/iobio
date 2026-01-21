@@ -26,6 +26,7 @@
 <header-actions
   {{- block.shopify_attributes -}}
 >
+  {% comment %}
   {% if shop.customer_accounts_enabled %}
     <script
       src="{{ 'dialog.js' | asset_url }}"
@@ -76,6 +77,7 @@
       </dialog>
     </dialog-component>
   {% endif %}
+  {% endcomment %}
 
   {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
     <script

@@ -8,6 +8,9 @@
  * ------------------------------------------------------------
  */
 {
+  "text_defaults": {
+    "shop_now_button_label": "Acquista ora"
+  },
   "blocks": {
     "load_video": "Carica il video: {{ description }}",
     "sold_out": "Esaurito",
@@ -91,7 +94,7 @@
       "other": "Vedi {{ count }} articoli",
       "many": "Vedi {{ count }} articoli"
     },
-    "view_all": "Visualizza tutto",
+    "view_all": "Vedi tutto",
     "add": "Aggiungi",
     "choose": "Scegli",
     "added": "Aggiunto",
@@ -157,8 +160,8 @@
     "taxes_included": "Imposte incluse.",
     "product_badge_sold_out": "Esaurito",
     "product_badge_sale": "In offerta",
-    "search_input_label": "Ricerca",
-    "search_input_placeholder": "Ricerca",
+    "search_input_label": "Cerca",
+    "search_input_placeholder": "Cerca",
     "search_results": "Risultati della ricerca",
     "search_results_label": "Risultati della ricerca",
     "search_results_no_results": "Nessun risultato trovato per “{{ terms }}”. Prova con un’altra ricerca.",
@@ -167,8 +170,8 @@
     "search_results_resource_pages": "Pagine",
     "search_results_resource_products": "Prodotti",
     "search_results_resource_queries": "Suggerimenti di ricerca",
-    "search_results_view_all": "Visualizza tutto",
-    "search_results_view_all_button": "Visualizza tutto",
+    "search_results_view_all": "Vedi tutto",
+    "search_results_view_all_button": "Vedi tutto",
     "search_results_resource_products_count": {
       "one": "{{ count }} prodotto",
       "other": "{{ count }} prodotti",
@@ -191,7 +194,7 @@
       "many": "{{ count }} articoli"
     },
     "errors": "Errori",
-    "search": "Ricerca",
+    "search": "Cerca",
     "search_results_no_results_check_spelling": "Nessun risultato trovato per \"{{ terms }}\". Controlla l'ortografia o usa un'altra parola o frase.",
     "featured_products": "Prodotti in primo piano",
     "no_products_found": "Nessun prodotto trovato.",
@@ -321,7 +324,7 @@
   },
   "placeholders": {
     "password": "Password",
-    "search": "Ricerca",
+    "search": "Cerca",
     "product_title": "Titolo del prodotto",
     "collection_title": "Titolo della collezione",
     "blog_posts": "Articoli del blog",

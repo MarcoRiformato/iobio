@@ -11,8 +11,27 @@
   "sections": {
     "hero_jVaWmY": {
       "type": "hero",
-      "blocks": {},
-      "block_order": [],
+      "blocks": {
+        "hero_heading": {
+          "type": "text",
+          "settings": {
+            "text": "<h1>Nuovi Arrivi</h1>",
+            "type_preset": "h1",
+            "alignment": "center"
+          }
+        },
+        "hero_button": {
+          "type": "button",
+          "settings": {
+            "label": "Acquista ora",
+            "link": "shopify://collections/all"
+          }
+        }
+      },
+      "block_order": [
+        "hero_heading",
+        "hero_button"
+      ],
       "name": "t:names.hero",
       "settings": {
         "media_type_1": "image",
