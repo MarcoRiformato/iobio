@@ -1,115 +1,248 @@
-<div class="section-background color-{{ section.settings.color_scheme }}"></div>
-<div class="section page-width-content color-{{ section.settings.color_scheme }}">
-  <div class="section-content-wrapper contact-form-container" style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    
-    <div class="contact-header" style="text-align: center; margin-bottom: 40px;">
-      <h1 class="h1">{{ section.settings.heading }}</h1>
-      <div class="rte">{{ section.settings.subtext }}</div>
+{%- style -%}
+  .work-with-us-section {
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background: linear-gradient(135deg, #f9fbf9 0%, #edf2ed 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .work-form-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .work-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .work-header h1 {
+    font-size: 2.5rem;
+    color: #1a4d2e; /* Deep green for io bio */
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+
+  .work-header p {
+    color: #4a5d4a;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .work-field-group {
+    margin-bottom: 25px;
+    position: relative;
+  }
+
+  .work-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a4d2e;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .work-input, .work-select, .work-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e6e0;
+    border-radius: 10px;
+    background: white;
+    font-size: 1rem;
+    color: #333;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .work-input:focus, .work-select:focus, .work-textarea:focus {
+    outline: none;
+    border-color: #1a4d2e;
+    box-shadow: 0 0 0 4px rgba(26, 77, 46, 0.1);
+  }
+
+  .work-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a4d2e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 18px;
+    padding-right: 45px;
+  }
+
+  .work-file-input-wrapper {
+    position: relative;
+    cursor: pointer;
+  }
+
+  /* Custom styling for file input to make it look premium */
+  .work-file-input {
+    display: none;
+  }
+
+  .work-file-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 2px dashed #1a4d2e;
+    border-radius: 10px;
+    background: rgba(26, 77, 46, 0.02);
+    color: #1a4d2e;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .work-file-button:hover {
+    background: rgba(26, 77, 46, 0.05);
+  }
+
+  .work-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: #1a4d2e;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(26, 77, 46, 0.2);
+  }
+
+  .work-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 77, 46, 0.3);
+    background: #153c24;
+  }
+
+  .work-submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .form__message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .form__message--success {
+    background: #e7f5e7;
+    color: #1a4d2e;
+  }
+
+  .form__message--error {
+    background: #fdeaea;
+    color: #c53030;
+  }
+
+  @media screen and (max-width: 768px) {
+    .work-form-card {
+      padding: 25px;
+    }
+    .work-header h1 {
+      font-size: 2rem;
+    }
+  }
+{%- endstyle -%}
+
+<div class="work-with-us-section">
+  <div class="work-form-card">
+    <div class="work-header">
+      <h1>{{ section.settings.heading }}</h1>
+      <p>{{ section.settings.subtext }}</p>
     </div>
 
-    {% form 'contact' %}
+    {% form 'contact', id: 'WorkWithUsForm' %}
       {% if form.posted_successfully? %}
-        <div class="form-status form-status-list form__message" tabindex="-1" autofocus>
-          {% render 'icon-success' %} 
+        <div class="form__message form__message--success" tabindex="-1" autofocus>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z" fill="currentColor"/></svg>
           <span>Grazie per la tua candidatura! Ti contatteremo presto.</span>
         </div>
       {% elsif form.errors %}
-        <div class="form__message">
-          <h2 class="form-status caption-large" role="alert" tabindex="-1" autofocus>
-            {% render 'icon-error' %} Si è verificato un errore. Controlla i campi e riprova.
-          </h2>
+        <div class="form__message form__message--error" role="alert" tabindex="-1" autofocus>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" fill="currentColor"/></svg>
+          <span>Si è verificato un errore. Per favore riprova.</span>
         </div>
-        <ul class="form-status-list caption-large" role="list">
-          {% for field in form.errors %}
-            <li>
-              <a href="#ContactForm-{{ field }}" class="link">
-                {% if form.errors.translated_fields[field] contains 'author' %}
-                  Nome
-                {% elsif form.errors.translated_fields[field] contains 'body' %}
-                  Messaggio
-                {% else %}
-                  {{ form.errors.translated_fields[field] }}
-                {% endif %}
-                {{ form.errors.messages[field] }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
       {% endif %}
 
-      <div class="field" style="margin-bottom: 20px; display: block;">
-        <label class="field__label" for="ContactForm-name" style="display: block; margin-bottom: 8px;">Nome Completo</label>
-        <input class="field__input" autocomplete="name" type="text" id="ContactForm-name" name="contact[Nome]" value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}" placeholder="" style="width: 100%; padding: 10px; border: 1px solid currentColor;">
+      <div class="work-field-group">
+        <label class="work-label" for="ContactForm-name">Nome Completo</label>
+        <input class="work-input" autocomplete="name" type="text" id="ContactForm-name" name="contact[Nome]" value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}" placeholder="Il tuo nome">
       </div>
 
-      <div class="field field--with-error" style="margin-bottom: 20px; display: block;">
-        <label class="field__label" for="ContactForm-email" style="display: block; margin-bottom: 8px;">Email</label>
+      <div class="work-field-group">
+        <label class="work-label" for="ContactForm-email">Email</label>
         <input
           autocomplete="email"
           type="email"
           id="ContactForm-email"
-          class="field__input"
+          class="work-input"
           name="contact[email]"
           spellcheck="false"
           autocapitalize="off"
           value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
           aria-required="true"
-          {% if form.errors contains 'email' %}
-            aria-invalid="true"
-            aria-describedby="ContactForm-email-error"
-          {% endif %}
-          placeholder=""
-          style="width: 100%; padding: 10px; border: 1px solid currentColor;"
+          placeholder="email@esempio.it"
         >
       </div>
 
-      <div class="field" style="margin-bottom: 20px; display: block;">
-        <label class="field__label" for="ContactForm-position" style="display: block; margin-bottom: 8px;">Posizione Desiderata</label>
-        <div class="select" style="position: relative;">
-          <select
-            id="ContactForm-position"
-            class="select__select"
-            name="contact[Posizione]"
-            style="width: 100%; padding: 10px; border: 1px solid currentColor; appearance: none; background: transparent;"
-          >
-            <option value="Marketing e Comunicazione">Marketing e Comunicazione</option>
-            <option value="Logistica e Magazzino">Logistica e Magazzino</option>
-            <option value="Servizio Clienti">Servizio Clienti</option>
-            <option value="Altro">Altro</option>
-          </select>
-          <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 10px; pointer-events: none;">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
-          </svg>
-        </div>
+      <div class="work-field-group">
+        <label class="work-label" for="ContactForm-position">Posizione Desiderata</label>
+        <select
+          id="ContactForm-position"
+          class="work-select"
+          name="contact[Posizione]"
+        >
+          <option value="Marketing e Comunicazione">Marketing e Comunicazione</option>
+          <option value="Logistica e Magazzino">Logistica e Magazzino</option>
+          <option value="Servizio Clienti">Servizio Clienti</option>
+          <option value="Altro">Altro</option>
+        </select>
       </div>
 
-      <div class="field" style="margin-bottom: 20px; display: block;">
-        <label class="field__label" for="ContactForm-cv" style="display: block; margin-bottom: 8px;">Carica il tuo CV</label>
-        <!-- Note: Shopify contact forms do not natively support file uploads in a simple way without an app, 
-             but we will add the input type='file' as requested. It might not actually attach to the email 
-             without backend support or an app, but meets the frontend requirement. -->
-        <input class="field__input" type="file" id="ContactForm-cv" name="contact[cv]" style="width: 100%; padding: 10px; border: 1px solid currentColor;">
+      <div class="work-field-group">
+        <label class="work-label">Carica il tuo CV</label>
+        <label for="ContactForm-cv" class="work-file-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="file-label-text">Seleziona un file</span>
+        </label>
+        <input class="work-file-input" type="file" id="ContactForm-cv" name="contact[cv]" onchange="document.getElementById('file-label-text').innerText = this.files[0].name">
       </div>
 
-      <div class="field" style="margin-bottom: 20px; display: block;">
-        <label class="field__label" for="ContactForm-body" style="display: block; margin-bottom: 8px;">Presentati brevemente</label>
+      <div class="work-field-group">
+        <label class="work-label" for="ContactForm-body">Presentati brevemente</label>
         <textarea
-          rows="10"
+          rows="5"
           id="ContactForm-body"
-          class="text-area field__input"
+          class="work-textarea"
           name="contact[Presentazione]"
-          placeholder=""
-          style="width: 100%; padding: 10px; border: 1px solid currentColor; min-height: 100px;"
-        >
-          {{- form.body -}}
-        </textarea>
+          placeholder="Raccontaci qualcosa di te..."
+        >{{- form.body -}}</textarea>
       </div>
 
-      <div class="contact__button" style="text-align: center;">
-        <button type="submit" class="button">
-          Invia Candidatura
-        </button>
-      </div>
+      <button type="submit" class="work-submit-btn">
+        Invia Candidatura
+      </button>
     {% endform %}
   </div>
 </div>
@@ -129,12 +262,6 @@
       "id": "subtext",
       "default": "Siamo sempre alla ricerca di talenti appassionati di benessere naturale. Inviaci la tua candidatura spontanea.",
       "label": "Subtext"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "Color Scheme",
-      "default": "scheme-1"
     }
   ]
 }
