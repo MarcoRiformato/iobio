@@ -1,0 +1,441 @@
+<nav id="iobio-sidebar-main">
+  <div class="iobio-sidebar-header">
+    {%- if section.settings.logo != blank -%}
+      <a href="{{ routes.root_url }}" class="iobio-sidebar-logo" style="max-width: {{ section.settings.logo_width }}px;">
+        {{ section.settings.logo | image_url: width: section.settings.logo_width | image_tag: loading: 'eager', alt: shop.name }}
+      </a>
+    {%- else -%}
+      <a href="{{ routes.root_url }}" class="iobio-sidebar-logo iobio-brand-text">iobio</a>
+    {%- endif -%}
+  </div>
+
+  <ul class="iobio-sidebar-menu">
+    {%- assign menu_handle = section.settings.menu -%}
+    {%- if menu_handle == blank or menu_handle == 'main-menu' -%}
+      {%- if linklists['sidebar-menu'].links.size > 0 -%}
+        {%- assign menu_handle = 'sidebar-menu' -%}
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- for link in linklists[menu_handle].links -%}
+      
+      {%- assign link_handle = link.handle | downcase -%}
+      
+      <!-- SPECIAL LINK HANDLING -->
+      {%- if link_handle == 'search' or link.title contains 'Search' -%}
+        <li>
+          <a href="{{ routes.search_url }}" class="iobio-menu-link" data-iobio-link>
+            <span style="display:flex; align-items:center; gap:10px;">
+              <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-search" viewBox="0 0 20 20" style="width:1.2rem; height:1.2rem; fill:currentColor;"><path d="M8 3c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0-2c3.9 0 7 3.1 7 7 0 1.6-.5 3-1.4 4.2l5.1 5.1c.4.4.4 1 0 1.4-.4.4-1 .4-1.4 0l-5.1-5.1C11 15.5 9.6 16 8 16c-3.9 0-7-3.1-7-7s3.1-7 7-7z" fill="currentColor"/></svg>
+              {{ link.title }}
+            </span>
+          </a>
+        </li>
+      
+      {%- elsif link_handle == 'orders' -%}
+        <!-- ORDERS: Only show if logged in -->
+        {%- if customer -%}
+          <li>
+            <a href="{{ link.url }}" class="iobio-menu-link {% if link.active %}active{% endif %}" data-iobio-link>
+              <span style="display:flex; align-items:center; gap:10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 4h8v-1c0-1.657-1.343-3-3-3s-3 1.343-3 3v1z" style="display:none"/><path d="M1 4h14v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4zm7-3C6.896 1 6 1.896 6 3v1h4V3c0-1.104-.896-2-2-2z"/></svg>
+                {{ link.title }}
+              </span>
+            </a>
+          </li>
+        {%- endif -%}
+
+      {%- elsif link_handle == 'profile' or link_handle == 'account' -%}
+        <!-- PROFILE: Login/Logout Toggle -->
+        {%- if customer -%}
+          <li>
+            <a href="{{ routes.account_url }}" class="iobio-menu-link {% if link.active %}active{% endif %}" data-iobio-link>
+              <span style="display:flex; align-items:center; gap:10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/></svg>
+                {{ link.title }}
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ routes.account_logout_url }}" class="iobio-menu-link" data-iobio-link>
+              <span style="opacity:0.7; font-size:0.9em;">Esci</span>
+            </a>
+          </li>
+        {%- else -%}
+          <li>
+            <a href="{{ routes.account_login_url }}" class="iobio-menu-link" data-iobio-link>
+              <span style="display:flex; align-items:center; gap:10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/></svg>
+                Accedi / Registrati
+              </span>
+            </a>
+          </li>
+        {%- endif -%}
+
+      {%- else -%}
+        <!-- STANDARD LINK & NESTING -->
+        <li>
+          {%- if link.links != blank -%}
+            <button type="button" class="iobio-menu-link iobio-menu-toggle" aria-expanded="false">
+              {{ link.title }}
+              <span class="iobio-arrow">▼</span>
+            </button>
+            <ul class="iobio-submenu">
+              {%- for childlink in link.links -%}
+                <li>
+                  <a href="{{ childlink.url }}" class="iobio-menu-link iobio-submenu-link {% if childlink.active %}active{% endif %}" data-iobio-link>
+                    {{ childlink.title }}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <a href="{{ link.url }}" class="iobio-menu-link {% if link.active %}active{% endif %}" data-iobio-link>
+              {{ link.title }}
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endif -%}
+
+    {%- endfor -%}
+
+    <!-- Optional: All Collections (as requested previously) -->
+    {%- if section.settings.show_all_collections -%}
+      <li class="iobio-divider"></li>
+      <li class="iobio-section-title">Categorie</li>
+      {%- for collection in collections -%}
+        {%- unless collection.handle == 'frontpage' -%}
+          <li>
+            <a href="{{ collection.url }}" class="iobio-menu-link iobio-submenu-link" data-iobio-link>
+              {{ collection.title }}
+            </a>
+          </li>
+        {%- endunless -%}
+      {%- endfor -%}
+    {%- endif -%}
+  </ul>
+</nav>
+
+{% schema %}
+{
+  "name": "Sidebar Navigation",
+  "tag": "section",
+  "class": "section-sidebar-nav",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 150,
+      "unit": "px",
+      "label": "Logo Width"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_all_collections",
+      "label": "Show All Collections at bottom",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sidebar Navigation"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+/* Organic Modern Sidebar CSS - Drawer Mode */
+#iobio-sidebar-main {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  bottom: 20px;
+  width: 280px;
+  background-color: #0f3d0f; /* Deep Forest Green */
+  color: #F9F8F2; /* Cream/Off-white */
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 5px 10px 30px rgba(15, 61, 15, 0.5);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999; 
+  font-family: var(--font-body-family), "Times New Roman", Times, serif;
+  overflow-y: auto;
+  
+  /* Drawer Logic: Hidden by default */
+  transform: translateX(-150%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* Active State */
+#iobio-sidebar-main.is-active {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Backdrop */
+#iobio-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9998; /* Just below sidebar */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#iobio-sidebar-backdrop.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.iobio-sidebar-header {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.iobio-sidebar-logo {
+  display: block;
+  text-decoration: none;
+}
+
+.iobio-sidebar-logo img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.iobio-brand-text {
+  font-family: "Garamond", "Times New Roman", serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #F9F8F2;
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
+}
+
+.iobio-sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.iobio-menu-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #F9F8F2;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 50px; /* Pill shape */
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 1;
+  background: transparent;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* Glassmorphism Pill Effect on Hover */
+.iobio-menu-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1); 
+  border-radius: 50px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  z-index: -1;
+  opacity: 0;
+}
+
+.iobio-menu-link:hover::before {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+.iobio-menu-link:hover {
+  transform: translateX(5px);
+}
+
+/* Submenu Styling */
+.iobio-submenu {
+  display: none;
+  list-style: none;
+  padding-left: 15px;
+  margin-top: 5px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.iobio-submenu.is-open {
+  display: flex;
+}
+
+.iobio-submenu-link {
+  font-size: 1rem;
+  padding: 10px 20px;
+  opacity: 0.9;
+}
+
+.iobio-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.iobio-menu-toggle[aria-expanded="true"] .iobio-arrow {
+  transform: rotate(180deg);
+}
+
+.iobio-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 15px 0;
+}
+
+.iobio-section-title {
+  padding: 0 20px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+  margin-bottom: 5px;
+}
+
+/* Active/Loading State */
+.iobio-menu-link.loading-active {
+  background: rgba(255, 255, 255, 0.2);
+  animation: iobioPulse 1.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes iobioPulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Mobile Styling */
+@media screen and (max-width: 768px) {
+  #iobio-sidebar-main {
+    top: 10px;
+    left: 10px;
+    bottom: 10px;
+    width: calc(100% - 20px); /* Full width minus margin on mobile */
+    max-width: 320px;
+  }
+}
+
+/* NUCLEAR OPTION: Force hide the default theme sidebar to prevent duplicates */
+.menu-drawer, .menu-drawer-container .menu-drawer {
+  display: none !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('iobio-sidebar-main');
+  const backdrop = document.getElementById('iobio-sidebar-backdrop');
+  // Attempt to find the existing theme burger button 
+  const burgerTriggers = document.querySelectorAll('summary.header__icon--menu, .header__icon--menu button, [aria-controls="menu-drawer"]');
+  const sidebarLinks = document.querySelectorAll('#iobio-sidebar-main [data-iobio-link]');
+
+  function openSidebar(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation(); // Stop bubbling
+    }
+    sidebar.classList.add('is-active');
+    backdrop.classList.add('is-active');
+    document.body.style.overflow = 'hidden'; // Lock scroll
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('is-active');
+    backdrop.classList.remove('is-active');
+    document.body.style.overflow = ''; // Unlock scroll
+  }
+
+  // Hook up triggers
+  burgerTriggers.forEach(trigger => {
+    // Clone node to strip existing listeners if necessary, but that might break other things.
+    // Instead, just force our logic and capture.
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation(); // Try to kill the default theme listener
+      openSidebar(e);
+    }, true); // Capture phase to run before standard listeners
+  });
+
+  // Close on Backdrop Click
+  backdrop.addEventListener('click', closeSidebar);
+
+  // Link & Toggle Logic
+  const allInteractiveElements = document.querySelectorAll('#iobio-sidebar-main .iobio-menu-link');
+
+  allInteractiveElements.forEach(el => {
+    el.addEventListener('click', function(e) {
+      // Toggle Logic
+      if (this.classList.contains('iobio-menu-toggle')) {
+        e.preventDefault();
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
+        
+        // Find next sibling submenu
+        const submenu = this.nextElementSibling;
+        if (submenu && submenu.classList.contains('iobio-submenu')) {
+          submenu.classList.toggle('is-open');
+        }
+        return;
+      }
+
+      // Link Navigation Logic
+      const url = this.getAttribute('href');
+      
+      if (this.target === '_blank' || e.metaKey || e.ctrlKey || !url) return;
+      
+      e.preventDefault();
+      
+      this.classList.add('loading-active');
+      
+      setTimeout(() => {
+        closeSidebar();
+        window.location.href = url;
+      }, 200);
+    });
+  });
+});
+</script>

@@ -1,0 +1,10 @@
+* text=auto
+
+# Explicitly set text for common files to ensure they are normalized
+*.liquid text
+*.js text
+*.css text
+*.html text
+*.json text
+*.md text
+*.txt text
