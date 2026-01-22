@@ -1,0 +1,49 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="section page-width color-{{ section.settings.color_scheme }}">
+  <div class="section-content-wrapper about-story-container" style="padding: 40px 20px;">
+    
+    <!-- Row 1: Image (Left) | Text (Right) -->
+    <div class="about-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px; margin-bottom: 60px;">
+      <div class="about-image" style="flex: 1 1 300px;">
+        <img src="https://placehold.co/600x400" alt="La Nostra Filosofia" style="width: 100%; height: auto; border-radius: 8px;">
+      </div>
+      <div class="about-text" style="flex: 1 1 300px;">
+        <h2 class="h2">La Nostra Filosofia</h2>
+        <div class="rte">
+          <p>In io bio, crediamo che la natura abbia tutte le risposte. Dal 2020 selezioniamo solo i migliori integratori biologici per il tuo benessere quotidiano, senza compromessi sulla qualità.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Text (Left) | Image (Right) -->
+    <div class="about-row reverse-mobile" style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px;">
+        <!-- Note: In Flexbox with wrap, natural order is Text then Image. 
+             If we want Text Left on Desktop, we put Text first. 
+        -->
+      <div class="about-text" style="flex: 1 1 300px;">
+        <h2 class="h2">Ingredienti 100% Naturali</h2>
+        <div class="rte">
+          <p>Niente chimica, solo purezza. I nostri prodotti provengono da agricoltura sostenibile certificata, rispettando l'ambiente e il tuo corpo. Ogni integratore è testato per garantire la massima efficacia.</p>
+        </div>
+      </div>
+      <div class="about-image" style="flex: 1 1 300px;">
+        <img src="https://placehold.co/600x400" alt="Ingredienti 100% Naturali" style="width: 100%; height: auto; border-radius: 8px;">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "About io bio",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}

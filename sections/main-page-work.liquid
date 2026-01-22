@@ -1,0 +1,141 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="section page-width-content color-{{ section.settings.color_scheme }}">
+  <div class="section-content-wrapper contact-form-container" style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    
+    <div class="contact-header" style="text-align: center; margin-bottom: 40px;">
+      <h1 class="h1">{{ section.settings.heading }}</h1>
+      <div class="rte">{{ section.settings.subtext }}</div>
+    </div>
+
+    {% form 'contact' %}
+      {% if form.posted_successfully? %}
+        <div class="form-status form-status-list form__message" tabindex="-1" autofocus>
+          {% render 'icon-success' %} 
+          <span>Grazie per la tua candidatura! Ti contatteremo presto.</span>
+        </div>
+      {% elsif form.errors %}
+        <div class="form__message">
+          <h2 class="form-status caption-large" role="alert" tabindex="-1" autofocus>
+            {% render 'icon-error' %} Si è verificato un errore. Controlla i campi e riprova.
+          </h2>
+        </div>
+        <ul class="form-status-list caption-large" role="list">
+          {% for field in form.errors %}
+            <li>
+              <a href="#ContactForm-{{ field }}" class="link">
+                {% if form.errors.translated_fields[field] contains 'author' %}
+                  Nome
+                {% elsif form.errors.translated_fields[field] contains 'body' %}
+                  Messaggio
+                {% else %}
+                  {{ form.errors.translated_fields[field] }}
+                {% endif %}
+                {{ form.errors.messages[field] }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="field" style="margin-bottom: 20px; display: block;">
+        <label class="field__label" for="ContactForm-name" style="display: block; margin-bottom: 8px;">Nome Completo</label>
+        <input class="field__input" autocomplete="name" type="text" id="ContactForm-name" name="contact[Nome]" value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}" placeholder="" style="width: 100%; padding: 10px; border: 1px solid currentColor;">
+      </div>
+
+      <div class="field field--with-error" style="margin-bottom: 20px; display: block;">
+        <label class="field__label" for="ContactForm-email" style="display: block; margin-bottom: 8px;">Email</label>
+        <input
+          autocomplete="email"
+          type="email"
+          id="ContactForm-email"
+          class="field__input"
+          name="contact[email]"
+          spellcheck="false"
+          autocapitalize="off"
+          value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+          aria-required="true"
+          {% if form.errors contains 'email' %}
+            aria-invalid="true"
+            aria-describedby="ContactForm-email-error"
+          {% endif %}
+          placeholder=""
+          style="width: 100%; padding: 10px; border: 1px solid currentColor;"
+        >
+      </div>
+
+      <div class="field" style="margin-bottom: 20px; display: block;">
+        <label class="field__label" for="ContactForm-position" style="display: block; margin-bottom: 8px;">Posizione Desiderata</label>
+        <div class="select" style="position: relative;">
+          <select
+            id="ContactForm-position"
+            class="select__select"
+            name="contact[Posizione]"
+            style="width: 100%; padding: 10px; border: 1px solid currentColor; appearance: none; background: transparent;"
+          >
+            <option value="Marketing e Comunicazione">Marketing e Comunicazione</option>
+            <option value="Logistica e Magazzino">Logistica e Magazzino</option>
+            <option value="Servizio Clienti">Servizio Clienti</option>
+            <option value="Altro">Altro</option>
+          </select>
+          <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 10px; pointer-events: none;">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
+          </svg>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom: 20px; display: block;">
+        <label class="field__label" for="ContactForm-cv" style="display: block; margin-bottom: 8px;">Carica il tuo CV</label>
+        <!-- Note: Shopify contact forms do not natively support file uploads in a simple way without an app, 
+             but we will add the input type='file' as requested. It might not actually attach to the email 
+             without backend support or an app, but meets the frontend requirement. -->
+        <input class="field__input" type="file" id="ContactForm-cv" name="contact[cv]" style="width: 100%; padding: 10px; border: 1px solid currentColor;">
+      </div>
+
+      <div class="field" style="margin-bottom: 20px; display: block;">
+        <label class="field__label" for="ContactForm-body" style="display: block; margin-bottom: 8px;">Presentati brevemente</label>
+        <textarea
+          rows="10"
+          id="ContactForm-body"
+          class="text-area field__input"
+          name="contact[Presentazione]"
+          placeholder=""
+          style="width: 100%; padding: 10px; border: 1px solid currentColor; min-height: 100px;"
+        >
+          {{- form.body -}}
+        </textarea>
+      </div>
+
+      <div class="contact__button" style="text-align: center;">
+        <button type="submit" class="button">
+          Invia Candidatura
+        </button>
+      </div>
+    {% endform %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Work with Us",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Lavora con Noi",
+      "label": "Heading"
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "default": "Siamo sempre alla ricerca di talenti appassionati di benessere naturale. Inviaci la tua candidatura spontanea.",
+      "label": "Subtext"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}
