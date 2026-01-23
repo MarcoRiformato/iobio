@@ -38,7 +38,9 @@
 
     <div class="footer-row-bottom">
       {% comment %} Socials removed from footer {% endcomment %}
-
+      <div class="footer-copyright">
+        <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}<br>P.IVA: IT12345678901 | Sede Legale: Via Italia, Bari</p>
+      </div>
     </div>
 
   </div>
@@ -154,11 +156,22 @@
 /* ROW BOTTOM - Modern Layout */
 .footer-row-bottom {
   display: flex;
-  justify-content: flex-end; /* Align newsletter to right */
+  justify-content: center; /* Center copyright */
   align-items: center;
   padding-top: 32px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   gap: 24px;
+}
+
+.footer-copyright {
+  text-align: center;
+}
+
+.footer-copyright p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  margin: 0;
 }
 
 .footer-social {
