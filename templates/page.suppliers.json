@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page-suppliers",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

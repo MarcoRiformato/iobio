@@ -1,0 +1,86 @@
+{{ 'section-main-page.css' | asset_url | stylesheet_tag }}
+
+<style>
+  .suppliers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  @media screen and (min-width: 750px) {
+    .suppliers-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3rem;
+    }
+  }
+
+  .supplier-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .supplier-logo {
+    width: 150px;
+    height: 80px;
+    background-color: #e5e5e5;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .supplier-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgb(var(--color-foreground));
+  }
+</style>
+
+<div class="page-width">
+  <div class="suppliers-grid">
+    <div class="supplier-block">
+      <div class="supplier-logo"></div>
+      <p class="supplier-name">Fornitore 1</p>
+    </div>
+
+    <div class="supplier-block">
+      <div class="supplier-logo"></div>
+      <p class="supplier-name">Fornitore 2</p>
+    </div>
+
+    <div class="supplier-block">
+      <div class="supplier-logo"></div>
+      <p class="supplier-name">Fornitore 3</p>
+    </div>
+
+    <div class="supplier-block">
+      <div class="supplier-logo"></div>
+      <p class="supplier-name">Fornitore 4</p>
+    </div>
+
+    <div class="supplier-block">
+      <div class="supplier-logo"></div>
+      <p class="supplier-name">Fornitore 5</p>
+    </div>
+
+    <div class="supplier-block">
+      <div class="supplier-logo"></div>
+      <p class="supplier-name">Fornitore 6</p>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Suppliers Page",
+  "tag": "section",
+  "class": "section",
+  "settings": []
+}
+{% endschema %}
