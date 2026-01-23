@@ -11,10 +11,10 @@
   
   {% comment %} Navigation Links - Multi-column layout {% endcomment %}
   <div class="header-nav-links-wrapper">
-    <a href="{{ videofaq_url }}" data-debug-raw="{{ videofaq_url }}" class="header-nav-link" style="color: inherit; text-decoration: none; font-size: 0.875rem;">
+    <a href="{{ section.settings.videofaq_url }}" class="header-nav-link" style="color: inherit; text-decoration: none; font-size: 0.875rem;">
       {{ 'sections.header.videofaq' | t | default: 'Videofaq' }}
     </a>
-    <a href="{{ infoblog_url }}" data-debug-raw="{{ infoblog_url }}" class="header-nav-link" style="color: inherit; text-decoration: none; font-size: 0.875rem;">
+    <a href="{{ section.settings.infoblog_url }}" class="header-nav-link" style="color: inherit; text-decoration: none; font-size: 0.875rem;">
       {{ 'sections.header.infoblog' | t | default: 'Infoblog' }}
     </a>
   </div>

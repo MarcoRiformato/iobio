@@ -51,8 +51,8 @@
       },
       "settings": {
         "use_custom_header": true,
-        "videofaq_link": "shopify://pages/videofaq",
-        "infoblog_link": "shopify://pages/infoblog",
+        "videofaq_url": "shopify://pages/videofaq",
+        "infoblog_url": "shopify://pages/infoblog",
         "button_green_color": "#00aa00",
         "videofaq_icon": "check-circle",
         "infoblog_icon": "book-open",
