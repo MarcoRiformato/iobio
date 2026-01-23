@@ -1075,11 +1075,18 @@
     }
     
     function fixSummaryAndCheckout() {
+      console.log('[CART DEBUG] fixSummaryAndCheckout called');
       const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
-      if (!drawer) return;
-      
+      if (!drawer) {
+        console.log('[CART DEBUG] No open drawer found');
+        return;
+      }
+
+      console.log('[CART DEBUG] Drawer found:', drawer);
+
       // Ensure summary is static (not sticky) - it's now inside the scrollable container
       const summary = drawer.querySelector('.cart-drawer__summary');
+      console.log('[CART DEBUG] Summary found:', !!summary);
       if (summary) {
         // Ensure it's static and not sticky
         summary.style.setProperty('position', 'static', 'important');
@@ -1089,17 +1096,18 @@
         summary.style.setProperty('right', 'auto', 'important');
         summary.style.setProperty('transform', 'none', 'important');
         summary.style.setProperty('will-change', 'auto', 'important');
-        
+
         // Remove any sticky-related attributes
         summary.removeAttribute('data-sticky');
         summary.removeAttribute('sticky');
-        
+
         // Also force the dialog attribute
         drawer.setAttribute('cart-summary-sticky', 'false');
       }
-      
+
       // Hide shopify-accelerated-checkout-cart completely
       const acceleratedCheckout = drawer.querySelector('shopify-accelerated-checkout-cart');
+      console.log('[CART DEBUG] Accelerated checkout found:', !!acceleratedCheckout);
       if (acceleratedCheckout) {
         acceleratedCheckout.style.setProperty('display', 'none', 'important');
         acceleratedCheckout.style.setProperty('visibility', 'hidden', 'important');
@@ -1108,37 +1116,51 @@
         acceleratedCheckout.style.setProperty('width', '0', 'important');
         acceleratedCheckout.style.setProperty('overflow', 'hidden', 'important');
       }
-      
+
       // Hide additional checkout buttons
       const additionalCheckout = drawer.querySelectorAll('.additional-checkout-buttons, .cart__additional-checkout-buttons');
+      console.log('[CART DEBUG] Additional checkout buttons found:', additionalCheckout.length);
       additionalCheckout.forEach(el => {
         el.style.setProperty('display', 'none', 'important');
       });
-      
+
       // Remove any duplicate checkout buttons (keep only the first one) - PHYSICALLY REMOVE FROM DOM
       const cartCtas = drawer.querySelector('.cart__ctas');
+      console.log('[CART DEBUG] cart__ctas found:', !!cartCtas);
       if (cartCtas) {
         const existingCheckout = cartCtas.querySelector('.cart__checkout-button, button#checkout');
+        console.log('[CART DEBUG] existingCheckout found:', !!existingCheckout);
         if (existingCheckout) {
+          console.log('[CART DEBUG] existingCheckout ID:', existingCheckout.id);
+          console.log('[CART DEBUG] existingCheckout classes:', existingCheckout.className);
+
           // Remove ALL other checkout buttons in the entire drawer
           const allCheckoutButtons = drawer.querySelectorAll('.cart__checkout-button, button#checkout, button[name="checkout"]');
+          console.log('[CART DEBUG] Total checkout buttons in drawer:', allCheckoutButtons.length);
           allCheckoutButtons.forEach(btn => {
             if (btn !== existingCheckout) {
+              console.log('[CART DEBUG] Removing duplicate button:', btn.id || 'no-id', btn.className);
               btn.remove();
             }
           });
-          
+
           // Also check for buttons with "checkout" text
           const allButtons = drawer.querySelectorAll('button');
+          console.log('[CART DEBUG] Total buttons in drawer:', allButtons.length);
           allButtons.forEach(btn => {
             if (btn !== existingCheckout && (btn.textContent?.toLowerCase().includes('checkout') || btn.textContent?.toLowerCase().includes('check-out'))) {
               const cartCtasCheck = drawer.querySelector('.cart__ctas');
               if (!cartCtasCheck?.contains(btn)) {
+                console.log('[CART DEBUG] Removing button with checkout text:', btn.textContent);
                 btn.remove();
               }
             }
           });
+        } else {
+          console.log('[CART DEBUG] WARNING: No checkout button found in cart__ctas!');
         }
+      } else {
+        console.log('[CART DEBUG] WARNING: No cart__ctas found!');
       }
       
       // Also remove any shopify-accelerated-checkout-cart elements EVERYWHERE
@@ -1195,37 +1217,60 @@
       
       // Function to remove all duplicate checkout buttons - keep only our custom one
       function removeDuplicates() {
+        console.log('[CART DEBUG] removeDuplicates called');
         const cartCtas = drawer.querySelector('.cart__ctas');
         const summary = drawer.querySelector('.cart-drawer__summary');
-        if (!cartCtas) return;
-        
+
+        console.log('[CART DEBUG] cartCtas found:', !!cartCtas);
+        console.log('[CART DEBUG] summary found:', !!summary);
+
+        if (!cartCtas) {
+          console.log('[CART DEBUG] No cart__ctas found, exiting');
+          return;
+        }
+
         const customCheckout = cartCtas.querySelector('#custom-cart-checkout-button, .custom-checkout-button');
-        
+        console.log('[CART DEBUG] customCheckout button found:', !!customCheckout);
+        if (customCheckout) {
+          console.log('[CART DEBUG] customCheckout ID:', customCheckout.id);
+          console.log('[CART DEBUG] customCheckout classes:', customCheckout.className);
+          console.log('[CART DEBUG] customCheckout text:', customCheckout.textContent);
+        }
+
         // Remove all other checkout buttons in cart__ctas (except our custom one)
         const allButtonsInCtas = cartCtas.querySelectorAll('button');
+        console.log('[CART DEBUG] Found', allButtonsInCtas.length, 'buttons in cart__ctas');
         allButtonsInCtas.forEach(btn => {
           if (btn !== customCheckout) {
+            console.log('[CART DEBUG] Removing button from cart__ctas:', btn.id || 'no-id', btn.className, btn.textContent);
             btn.remove();
           }
         });
-        
+
         // Remove all checkout buttons in summary that are not our custom one
         if (summary) {
           const allButtonsInSummary = summary.querySelectorAll('button');
+          console.log('[CART DEBUG] Found', allButtonsInSummary.length, 'buttons in summary');
           allButtonsInSummary.forEach(btn => {
             if (btn !== customCheckout && (btn.textContent?.toLowerCase().includes('checkout') || btn.id === 'checkout' || btn.name === 'checkout' || btn.classList.contains('cart__checkout-button'))) {
+              console.log('[CART DEBUG] Removing button from summary:', btn.id || 'no-id', btn.className, btn.textContent);
               btn.remove();
             }
           });
         }
-        
+
         // Remove shopify-accelerated-checkout-cart everywhere
         const allAccelerated = drawer.querySelectorAll('shopify-accelerated-checkout-cart');
+        console.log('[CART DEBUG] Found', allAccelerated.length, 'accelerated checkout elements');
         allAccelerated.forEach(el => el.remove());
-        
+
         // Remove additional checkout buttons containers
         const allAdditional = drawer.querySelectorAll('.additional-checkout-buttons, .cart__additional-checkout-buttons');
+        console.log('[CART DEBUG] Found', allAdditional.length, 'additional checkout button containers');
         allAdditional.forEach(el => el.remove());
+
+        console.log('[CART DEBUG] After cleanup - cart__ctas still exists:', !!drawer.querySelector('.cart__ctas'));
+        console.log('[CART DEBUG] After cleanup - custom button still exists:', !!drawer.querySelector('#custom-cart-checkout-button'));
       }
       
       checkoutObserver = new MutationObserver((mutations) => {
@@ -1439,6 +1484,28 @@
     const observer = new MutationObserver(() => {
       const drawer = document.querySelector('.cart-drawer__dialog[open], dialog[open]');
       if (drawer && !forceInterval) {
+        console.log('[CART DEBUG] ========== DRAWER OPENED ==========');
+        console.log('[CART DEBUG] Drawer HTML:', drawer.innerHTML.substring(0, 500));
+
+        // Check for cart__ctas immediately
+        const cartCtas = drawer.querySelector('.cart__ctas');
+        console.log('[CART DEBUG] Initial check - cart__ctas exists:', !!cartCtas);
+        if (cartCtas) {
+          console.log('[CART DEBUG] cart__ctas HTML:', cartCtas.innerHTML);
+          const checkoutBtn = cartCtas.querySelector('#custom-cart-checkout-button');
+          console.log('[CART DEBUG] Initial check - custom checkout button exists:', !!checkoutBtn);
+          if (checkoutBtn) {
+            console.log('[CART DEBUG] Button details:', {
+              id: checkoutBtn.id,
+              className: checkoutBtn.className,
+              text: checkoutBtn.textContent,
+              display: window.getComputedStyle(checkoutBtn).display,
+              visibility: window.getComputedStyle(checkoutBtn).visibility,
+              opacity: window.getComputedStyle(checkoutBtn).opacity
+            });
+          }
+        }
+
         injectBlackTextStyle();
         startInterval();
         forceBlackText();
@@ -1449,6 +1516,7 @@
         setTimeout(fixSummaryAndCheckout, 300);
         setTimeout(fixSummaryAndCheckout, 600);
       } else if (!drawer && forceInterval) {
+        console.log('[CART DEBUG] ========== DRAWER CLOSED ==========');
         stopInterval();
         if (checkoutObserver) {
           checkoutObserver.disconnect();

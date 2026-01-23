@@ -354,16 +354,18 @@
   </div>
 </div>
 
-<div class="cart__ctas">
-  <form action="{{ routes.cart_url }}" method="post" id="cart-checkout-form" novalidate>
+<div class="cart__ctas" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+  <form action="{{ routes.cart_url }}" method="post" id="cart-checkout-form" novalidate style="display: block !important; visibility: visible !important; opacity: 1 !important;">
     <input type="hidden" name="checkout" value="1">
     <button
       type="submit"
       name="checkout"
-      class="cart__checkout-button"
+      id="custom-cart-checkout-button"
+      class="cart__checkout-button custom-checkout-button"
       {% if cart == empty %}
         disabled
       {% endif %}
+      style="display: block !important; visibility: visible !important; opacity: 1 !important;"
     >
       {{ 'content.checkout' | t | default: 'Check-out' }}
     </button>
@@ -407,19 +409,23 @@
     position: relative;
     width: 100%;
     margin-top: 12px;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10;
   }
-  
+
   .cart__ctas button:not(.cart__checkout-button),
   .cart__ctas shopify-accelerated-checkout-cart,
   .cart__ctas .additional-checkout-buttons,
   .cart__ctas .cart__additional-checkout-buttons {
-    display: none;
+    display: none !important;
   }
-  
+
   .cart__checkout-button {
-    background-color: #000000;
-    color: #ffffff;
-    border: 2px solid #000000;
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #000000 !important;
     font-weight: 600;
     padding: 16px 24px;
     font-size: 16px;
@@ -428,10 +434,14 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     letter-spacing: -0.2px;
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     margin: 0;
     box-sizing: border-box;
     min-height: 48px;
+    z-index: 100;
+    position: relative;
   }
   
   @media (max-width: 749px) {
@@ -439,13 +449,19 @@
       padding: 14px 20px;
       font-size: 15px;
       min-height: 44px;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
   }
-  
+
   @media (max-width: 480px) {
     .cart__checkout-button {
       padding: 12px 18px;
       font-size: 14px;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
   }
 
@@ -473,6 +489,29 @@
   .cart__checkout-button:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 2px;
+  }
+
+  /* Force checkout button visibility in cart drawer */
+  .cart-drawer__dialog .cart__ctas,
+  .cart-drawer__summary .cart__ctas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+
+  .cart-drawer__dialog .cart__checkout-button,
+  .cart-drawer__summary .cart__checkout-button,
+  .cart-drawer__dialog #custom-cart-checkout-button,
+  .cart-drawer__summary #custom-cart-checkout-button,
+  .cart-drawer__dialog .custom-checkout-button,
+  .cart-drawer__summary .custom-checkout-button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 100 !important;
   }
 
   .cart-actions__divider {
