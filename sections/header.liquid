@@ -162,7 +162,11 @@
 
 {% comment %} Custom header elements {% endcomment %}
 {% capture custom_left %}
-  {% render 'header-custom-left', section: section %}
+  {% render 'header-custom-left', 
+    videofaq_url: section.settings.videofaq_url,
+    infoblog_url: section.settings.infoblog_url,
+    section: section 
+  %}
 {% endcapture %}
 
 {% capture custom_center %}
