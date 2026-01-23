@@ -51,7 +51,7 @@
       },
       "settings": {
         "use_custom_header": true,
-        "videofaq_link": "#",
+        "videofaq_link": "",
         "infoblog_link": "#",
         "button_green_color": "#00aa00",
         "videofaq_icon": "check-circle",
@@ -62,7 +62,7 @@
         "show_notifications": true,
         "show_flag": true,
         "logo_position": "left",
-        "menu": "main-menu",
+        "menu": "navbar",
         "menu_position": "center",
         "menu_row": "top",
         "show_social": true,
