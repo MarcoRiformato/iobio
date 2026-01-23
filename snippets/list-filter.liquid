@@ -49,7 +49,15 @@
     {% endif %}
   >
     <summary class="facets__summary">
-      <span class="facets__label">{{ filter.label }}</span>
+      <span class="facets__label">
+        {%- if filter.label == 'Availability' -%}
+          {{ 'facets.availability' | t }}
+        {%- elsif filter.label == 'Price' -%}
+          {{ 'facets.price' | t }}
+        {%- else -%}
+          {{ filter.label }}
+        {%- endif -%}
+      </span>
 
       <div class="facets__status-wrapper">
         {% if is_swatch %}

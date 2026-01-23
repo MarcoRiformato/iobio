@@ -32,7 +32,13 @@
     {% endif %}
   >
     <summary class="facets__summary">
-      <span class="facets__label">{{ filter.label }}</span>
+      <span class="facets__label">
+        {%- if filter.label == 'Price' -%}
+          {{ 'facets.price' | t }}
+        {%- else -%}
+          {{ filter.label }}
+        {%- endif -%}
+      </span>
       <facet-status-component class="facets__status">
         <template ref="moneyFormat">{{ shop.money_format }}</template>
 

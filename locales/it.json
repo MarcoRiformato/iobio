@@ -398,6 +398,24 @@
       "title": "Accedi",
       "sign_in": "Accedi",
       "submit": "Invia"
+    },
+    "register": {
+      "submit": "Registrati"
+    }
+  },
+  "facets": {
+    "availability": "Disponibilità",
+    "price": "Prezzo"
+  },
+  "general": {
+    "search": {
+      "search": "Cerca"
+    }
+  },
+  "sections": {
+    "header": {
+      "videofaq": "Videofaq",
+      "infoblog": "Infoblog"
     }
   }
 }

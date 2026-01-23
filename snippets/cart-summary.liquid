@@ -299,7 +299,7 @@
       <span class="cart__delivery-text" style="display: block !important; visibility: visible !important; color: #000000 !important;">
         {% assign delivery_label = 'cart.delivery.estimated' | t %}
         {% if delivery_label == blank or delivery_label contains 'cart.delivery' %}
-          {% assign delivery_label = 'Estimated delivery:' %}
+          {% assign delivery_label = 'Consegna stimata:' %}
         {% endif %}
         {{ delivery_label }} 
         <strong style="color: #000000 !important;">{{ delivery_date }}</strong>
@@ -324,7 +324,7 @@
         <span class="cart__security-text" style="display: block !important; visibility: visible !important; color: #000000 !important; font-size: 12px !important;">
           {% assign security_text = 'cart.security.secure_checkout' | t %}
           {% if security_text == blank or security_text contains 'cart.security' %}
-            {% assign security_text = 'Secure checkout' %}
+            {% assign security_text = 'Pagamento sicuro' %}
           {% endif %}
           {{ security_text }}
         </span>
@@ -359,6 +359,7 @@
     <input type="hidden" name="checkout" value="1">
     <button
       type="submit"
+      name="checkout"
       class="cart__checkout-button"
       {% if cart == empty %}
         disabled
