@@ -82,7 +82,7 @@
         "settings": {
           "logo": "shopify://shop_images/logo-iobio.png",
           "logo_width": 150,
-          "menu": "main-menu",
+          "menu": "sidebar-menu",
           "show_all_collections": false
         }
       }
